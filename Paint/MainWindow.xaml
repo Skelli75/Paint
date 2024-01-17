@@ -7,6 +7,10 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
+        <Canvas>
+            <Canvas Height="413" Canvas.Left="206" Canvas.Top="10" Width="584" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <Button Content="Button" Height="88" Canvas.Left="93" Canvas.Top="96" Width="199"/>
+        </Canvas>
 
     </Grid>
 </Window>
