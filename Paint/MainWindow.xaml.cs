@@ -21,19 +21,47 @@ namespace Paint
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly DrawingAttributes PenAttributes = new()
+        private readonly DrawingAttributes PenTool = new() // ha vriabler för storlek
         {
             Color = Colors.Black,
             Height = 2,
             Width = 2
         };
+
+        private readonly DrawingAttributes EraserTool = new () // byt white till chosen
+        {
+            Color = Colors.White,
+            Height = 4,
+            Width = 4
+        };
         public MainWindow()
         {
             InitializeComponent();
-            StandardCanvas.DefaultDrawingAttributes = PenAttributes;
+            StandardCanvas.UseCustomCursor = true;
+            StandardCanvas.DefaultDrawingAttributes = PenTool;
+            SizeSlider.Maximum = 100;
+            SizeSlider.Minimum = 4;
         }
 
+        private void ButtonEraserTool(object sender, RoutedEventArgs e)
+        {
+            StandardCanvas.DefaultDrawingAttributes = EraserTool;
+        }
 
-        
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            PenTool.Height = SizeSlider.Value;
+            PenTool.Width = SizeSlider.Value;
+        }
     }
 }
