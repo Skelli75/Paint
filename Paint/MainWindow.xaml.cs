@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Ink;
 
 namespace Paint
 {
@@ -20,9 +21,19 @@ namespace Paint
     /// </summary>
     public partial class MainWindow : Window
     {
+        private readonly DrawingAttributes PenAttributes = new()
+        {
+            Color = Colors.Black,
+            Height = 2,
+            Width = 2
+        };
         public MainWindow()
         {
             InitializeComponent();
+            StandardCanvas.DefaultDrawingAttributes = PenAttributes;
         }
+
+
+        
     }
 }
