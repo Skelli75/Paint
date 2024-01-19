@@ -46,17 +46,26 @@ namespace Paint
         private void ButtonEraserTool(object sender, RoutedEventArgs e)
         {
             StandardCanvas.DefaultDrawingAttributes = EraserTool;
-        }
-
-        private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            StandardCanvas.DefaultDrawingAttributes.Height = SizeSlider.Value;
-            StandardCanvas.DefaultDrawingAttributes.Width = SizeSlider.Value;
+            UpdateSizeSlider();
         }
 
         private void ButtonPencilTool(object sender, RoutedEventArgs e)
         {
             StandardCanvas.DefaultDrawingAttributes = PenTool;
+            UpdateSizeSlider();
         }
+
+        private void SizeSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            StandardCanvas.DefaultDrawingAttributes.Height = SizeSlider.Value;
+            StandardCanvas.DefaultDrawingAttributes.Width = SizeSlider.Value;
+        }
+
+        private void UpdateSizeSlider()
+        {
+            SizeSlider.Value = StandardCanvas.DefaultDrawingAttributes.Width;
+        }
+
+        
     }
 }
