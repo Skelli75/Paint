@@ -6,11 +6,10 @@
         xmlns:local="clr-namespace:Paint"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        <Canvas>
-            <Canvas Height="413" Canvas.Left="206" Canvas.Top="10" Width="584" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <Button Content="Button" Height="88" Canvas.Left="93" Canvas.Top="96" Width="199"/>
-        </Canvas>
-
+    <Grid Background="#7F7F7F">
+        <InkCanvas Name="StandardCanvas" Height="375" Canvas.Left="212" Canvas.Top="49" Width="376" HorizontalAlignment="Center" Background="white" VerticalAlignment="Center"/>
+        <Button Content="Eraser" HorizontalAlignment="Left" Margin="155,109,0,0" VerticalAlignment="Top" Click="ButtonEraserTool"/>
+        <Slider Name="SizeSlider" HorizontalAlignment="Left" Margin="71,151,0,0" VerticalAlignment="Top" Width="120" ValueChanged="Slider_ValueChanged"/>
+        <Button Content="Pencil" HorizontalAlignment="Left" Margin="155,85,0,0" VerticalAlignment="Top" Click="ButtonPencilTool"/>
     </Grid>
 </Window>

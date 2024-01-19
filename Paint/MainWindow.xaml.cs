@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Ink;
 
 namespace Paint
 {
@@ -20,9 +21,42 @@ namespace Paint
     /// </summary>
     public partial class MainWindow : Window
     {
+        private readonly DrawingAttributes PenTool = new() // ha vriabler för storlek
+        {
+            Color = Colors.Black,
+            Height = 2,
+            Width = 2
+        };
+
+        private readonly DrawingAttributes EraserTool = new () // byt white till chosen
+        {
+            Color = Colors.White,
+            Height = 4,
+            Width = 4
+        };
         public MainWindow()
         {
             InitializeComponent();
+            StandardCanvas.UseCustomCursor = true;
+            StandardCanvas.DefaultDrawingAttributes = PenTool;
+            SizeSlider.Maximum = 100;
+            SizeSlider.Minimum = 4;
+        }
+
+        private void ButtonEraserTool(object sender, RoutedEventArgs e)
+        {
+            StandardCanvas.DefaultDrawingAttributes = EraserTool;
+        }
+
+        private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            StandardCanvas.DefaultDrawingAttributes.Height = SizeSlider.Value;
+            StandardCanvas.DefaultDrawingAttributes.Width = SizeSlider.Value;
+        }
+
+        private void ButtonPencilTool(object sender, RoutedEventArgs e)
+        {
+            StandardCanvas.DefaultDrawingAttributes = PenTool;
         }
     }
 }
