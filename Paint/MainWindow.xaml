@@ -11,5 +11,7 @@
         <Button Content="Eraser" HorizontalAlignment="Left" Margin="155,109,0,0" VerticalAlignment="Top" Click="ButtonEraserTool"/>
         <Slider Name="SizeSlider" HorizontalAlignment="Left" Margin="71,151,0,0" VerticalAlignment="Top" Width="120" ValueChanged="SizeSliderValueChanged"/>
         <Button Content="Pencil" HorizontalAlignment="Left" Margin="155,85,0,0" VerticalAlignment="Top" Click="ButtonPencilTool"/>
+		<Button Content="Undo" HorizontalAlignment="Left" Margin="212,5,0,0" VerticalAlignment="Top" Click="UndoButton"/>
+        <Button Content="Redo" HorizontalAlignment="Left" Margin="250,5,0,0" VerticalAlignment="Top" Click="RedoButton"/>
     </Grid>
 </Window>
