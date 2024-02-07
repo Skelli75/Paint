@@ -1,17 +1,20 @@
-﻿<Window x:Class="Paint.MainWindow"
+﻿<Window Name="mainWindow"
+        x:Class="Paint.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Paint"
         mc:Ignorable="d"
+		SizeChanged="UpdateWindow"
         Title="MainWindow" Height="450" Width="800">
     <Grid Background="#7F7F7F">
-        <InkCanvas Name="StandardCanvas" Height="375" Canvas.Left="212" Canvas.Top="49" Width="376" HorizontalAlignment="Center" Background="white" VerticalAlignment="Center"/>
+        <InkCanvas Name="StandardCanvas" HorizontalAlignment="Left" VerticalAlignment="Top" Background="white"/>
         <Button Content="Eraser" HorizontalAlignment="Left" Margin="155,109,0,0" VerticalAlignment="Top" Click="ButtonEraserTool"/>
         <Slider Name="SizeSlider" HorizontalAlignment="Left" Margin="71,151,0,0" VerticalAlignment="Top" Width="120" ValueChanged="SizeSliderValueChanged"/>
         <Button Content="Pencil" HorizontalAlignment="Left" Margin="155,85,0,0" VerticalAlignment="Top" Click="ButtonPencilTool"/>
-		<Button Content="Undo" HorizontalAlignment="Left" Margin="212,5,0,0" VerticalAlignment="Top" Click="UndoButton"/>
+        <Button Name="SaveButton" Content="Save" HorizontalAlignment="Left" Margin="28,20,0,0" VerticalAlignment="Top" Click="SaveButtonClick"/>
+		    <Button Content="Undo" HorizontalAlignment="Left" Margin="212,5,0,0" VerticalAlignment="Top" Click="UndoButton"/>
         <Button Content="Redo" HorizontalAlignment="Left" Margin="250,5,0,0" VerticalAlignment="Top" Click="RedoButton"/>
     </Grid>
 </Window>
