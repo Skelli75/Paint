@@ -13,6 +13,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Ink;
+using System.Runtime.InteropServices;
+using System.Security;
+using System.Diagnostics;
 
 namespace Paint
 {
@@ -24,10 +27,13 @@ namespace Paint
         List<System.Windows.Ink.StrokeCollection> _added = new(); // två listor, en med sträck som finns och en med borttagna
         List<System.Windows.Ink.StrokeCollection> _removed = new();
         private bool handle = true;
+        private MyShape currShape;
+        Point start;  // skapar start och end punkterna
+        Point end;
 
         private readonly DrawingAttributes PenTool = new() // ha vriabler för storlek
         {
-            Color = Colors.Black,
+            Color = Colors.Indigo,
             Height = 2,
             Width = 2
         };
@@ -38,13 +44,18 @@ namespace Paint
             Height = 4,
             Width = 4
         };
+
+        private readonly DrawingAttributes LineTool = new() // ha vriabler för storlek
+        {
+            Color = Colors.Transparent
+        };
         public MainWindow()
         {
             InitializeComponent();
             StandardCanvas.UseCustomCursor = true;
             StandardCanvas.DefaultDrawingAttributes = PenTool;
             SizeSlider.Maximum = 100;
-            SizeSlider.Minimum = 4;
+            SizeSlider.Minimum = 1;
 
             StandardCanvas.Strokes.StrokesChanged += Strokes_StrokesChanged;
         }
@@ -114,5 +125,84 @@ namespace Paint
         {
             Undo(sender, e);
         }
+        private void SaveButtonClick(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void LoadButtonClick(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+
+
+
+
+
+
+        
+
+        
+        private void ButtonLineTool(object sender, RoutedEventArgs e)  // vilken from som ska göras
+        {
+            currShape = MyShape.Line;  // av funktionerna som gör linjer sk avi endast göra en line
+            StandardCanvas.DefaultDrawingAttributes = LineTool; // stänger av pennan 
+        }
+
+        private void StandardCanvas_MouseDown (object sender, MouseButtonEventArgs e)
+        {
+            Debug.WriteLine("MouseDown");
+
+            if (StandardCanvas.DefaultDrawingAttributes == LineTool)
+            {
+                start = e.GetPosition(StandardCanvas);
+
+                Debug.WriteLine($"Start {end.ToString()}");
+            }
+        }
+
+        private void StandardCanvas_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            switch (currShape)
+            {
+                case MyShape.Line:
+                    DrawLine();
+                    break;
+                default:
+                    return;
+            }
+        }
+
+        private void StandardCanvas_MouseMove(object sender, MouseEventArgs e) // trackar hela tiden när musen rör sig vart den är
+        {
+            //Debug.WriteLine(e.GetPosition(this));
+            if (e.LeftButton == MouseButtonState.Pressed && StandardCanvas.DefaultDrawingAttributes == LineTool) //ta positionen där vänster klick händer
+            {
+                end = e.GetPosition(StandardCanvas);
+                Debug.WriteLine($"End {end.ToString()}");
+            }
+        }
+
+        private void DrawLine()  // när man har datan
+        {
+            Debug.WriteLine("DrawLine");
+            Line newLine = new()
+            {
+                Stroke = Brushes.Blue,
+                X1 = start.X,
+                Y1 = start.Y,
+                X2 = end.X,
+                Y2 = end.Y
+            };
+
+            StandardCanvas.Children.Add(newLine);
+        }
+
+        private enum MyShape
+        {
+            Line, Ellipse, Rectangle
+        }
+
     }
 }
