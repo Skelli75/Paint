@@ -26,6 +26,9 @@ namespace Paint
     {
         List<System.Windows.Ink.StrokeCollection> _added = new(); // två listor, en med sträck som finns och en med borttagna
         List<System.Windows.Ink.StrokeCollection> _removed = new();
+        List<System.Windows.Shapes.Line> _finalLines = new();
+        System.Windows.Shapes.Line _visibleLine;
+
         private bool handle = true;
         private MyShape currShape;
         Point start;  // skapar start och end punkterna
@@ -56,6 +59,7 @@ namespace Paint
             StandardCanvas.DefaultDrawingAttributes = PenTool;
             SizeSlider.Maximum = 100;
             SizeSlider.Minimum = 1;
+            FirstLine();
 
             StandardCanvas.Strokes.StrokesChanged += Strokes_StrokesChanged;
         }
@@ -150,6 +154,14 @@ namespace Paint
             StandardCanvas.DefaultDrawingAttributes = LineTool; // stänger av pennan 
         }
 
+        private void FirstLine ()
+        {
+            Line newLine = new() {Stroke = Brushes.Transparent, X1 = start.X, Y1 = start.Y, X2 = end.X, Y2 = end.Y};
+
+            _finalLines.Add(newLine);
+            _visibleLine = newLine;
+        }
+
         private void StandardCanvas_MouseDown (object sender, MouseButtonEventArgs e)
         {
             Debug.WriteLine("MouseDown");
@@ -162,7 +174,7 @@ namespace Paint
             }
         }
 
-        private void StandardCanvas_MouseUp(object sender, MouseButtonEventArgs e)
+        private void DrawShape()
         {
             switch (currShape)
             {
@@ -174,29 +186,60 @@ namespace Paint
             }
         }
 
+        private void StandardCanvas_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            switch (currShape)
+            {
+                case MyShape.Line:
+                    _finalLines.Add(DrawLine()); // ska kopplas samman med undo redo och undo DEN RIKTIGA LINJEN
+                    break;
+                default:
+                    return;
+            }
+        }
+
         private void StandardCanvas_MouseMove(object sender, MouseEventArgs e) // trackar hela tiden när musen rör sig vart den är
         {
             //Debug.WriteLine(e.GetPosition(this));
             if (e.LeftButton == MouseButtonState.Pressed && StandardCanvas.DefaultDrawingAttributes == LineTool) //ta positionen där vänster klick händer
             {
-                end = e.GetPosition(StandardCanvas);
+
+                if (_finalLines.Count > 0)
+                {
+                    Debug.WriteLine("Finallines more than 0");
+                    if (_finalLines[_finalLines.Count - 1] != _visibleLine)
+                    {
+                        Debug.WriteLine("Make red");
+                        _visibleLine.Stroke = Brushes.Transparent;
+                    }
+                }
+                end = e.GetPosition(StandardCanvas); // ger slut coord aka där musen är
+                DrawShape(); // ritar ut linjen
+
                 Debug.WriteLine($"End {end.ToString()}");
             }
         }
 
-        private void DrawLine()  // när man har datan
+        private Line DrawLine()  // när man har datan
         {
             Debug.WriteLine("DrawLine");
             Line newLine = new()
             {
                 Stroke = Brushes.Blue,
+                StrokeThickness = SizeSlider.Value,
+                StrokeEndLineCap = PenLineCap.Round,
+                StrokeStartLineCap = PenLineCap.Round,
                 X1 = start.X,
                 Y1 = start.Y,
                 X2 = end.X,
                 Y2 = end.Y
             };
 
+            _visibleLine = newLine;
+
             StandardCanvas.Children.Add(newLine);
+
+            return newLine;
         }
 
         private enum MyShape

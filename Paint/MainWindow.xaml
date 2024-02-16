@@ -19,7 +19,7 @@
             <RowDefinition Height="5*"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <InkCanvas PreviewMouseLeftButtonDown="StandardCanvas_MouseDown" PreviewMouseUp="StandardCanvas_MouseUp" MouseMove="StandardCanvas_MouseMove" 
+        <InkCanvas PreviewMouseLeftButtonDown="StandardCanvas_MouseDown" PreviewMouseUp="StandardCanvas_MouseUp" MouseMove="StandardCanvas_MouseMove"
                    Grid.Column="2" Grid.Row="1" Name="StandardCanvas" HorizontalAlignment="Center" VerticalAlignment="Center" Background="white" Height="1928" Width="3220" />
         <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal" Margin="0,-1,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Height="50" Width="108" Grid.ColumnSpan="2">
             <Button x:Name="SaveButton" Content="Save" HorizontalAlignment="Left" VerticalAlignment="Top" Click="SaveButtonClick" Width="50" Height="20"/>
@@ -30,6 +30,7 @@
             <Button Content="Redo" HorizontalAlignment="Left" VerticalAlignment="bottom" Click="RedoButton" Width="42"/>
         </StackPanel>
         <StackPanel Grid.Column="3" Margin="0,62,0,0" Grid.RowSpan="2">
+            <Label Content="Size"/>
             <Slider x:Name="SizeSlider" Width="108" ValueChanged="SizeSliderValueChanged"/>
             <Button Content="Eraser" HorizontalAlignment="right"  VerticalAlignment="Top" Click="ButtonEraserTool"/>
             <Button Content="Pencil" HorizontalAlignment="right" VerticalAlignment="Top" Click="ButtonPencilTool"/>
