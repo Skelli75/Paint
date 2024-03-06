@@ -1,21 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Diagnostics.SymbolStore;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
+using System.Windows.Ink;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
-using System.Windows.Ink;
-using System.Runtime.InteropServices;
-using System.Security;
-using System.Diagnostics;
 
 namespace Paint
 {
@@ -25,12 +14,12 @@ namespace Paint
     public partial class MainWindow : Window
     {
         List<System.Windows.Ink.StrokeCollection> _added = new(); // två listor, en med sträck som finns och en med borttagna
+        List<System.Windows.Ink.StrokeCollection> _addedVisualStrokes = new(); // två listor, en med sträck som finns och en med borttagna
         List<System.Windows.Ink.StrokeCollection> _removed = new();
-        List<System.Windows.Shapes.Line> _finalLines = new();
-        System.Windows.Shapes.Line _visibleLine;
+        private Color _color;
+        private ShapeTools _shapeTools;
 
         private bool handle = true;
-        private MyShape currShape;
         Point start;  // skapar start och end punkterna
         Point end;
 
@@ -41,7 +30,7 @@ namespace Paint
             Width = 2
         };
 
-        private readonly DrawingAttributes EraserTool = new () // byt white till chosen
+        private readonly DrawingAttributes EraserTool = new() // byt white till chosen
         {
             Color = Colors.White,
             Height = 4,
@@ -52,6 +41,11 @@ namespace Paint
         {
             Color = Colors.Transparent
         };
+
+        private readonly DrawingAttributes RectangleTool = new() // ha vriabler för storlek
+        {
+            Color = Colors.Transparent
+        };
         public MainWindow()
         {
             InitializeComponent();
@@ -59,24 +53,32 @@ namespace Paint
             StandardCanvas.DefaultDrawingAttributes = PenTool;
             SizeSlider.Maximum = 100;
             SizeSlider.Minimum = 1;
-            FirstLine();
 
+            _shapeTools = new ShapeTools();
+            _color = Colors.Orange;
+
+            DrawFirstLine();
             StandardCanvas.Strokes.StrokesChanged += Strokes_StrokesChanged;
         }
 
         private void Strokes_StrokesChanged(object sender, System.Windows.Ink.StrokeCollectionChangedEventArgs e)
         {
-            if (handle)
+            if (handle && StandardCanvas.DefaultDrawingAttributes != LineTool)
             {
                 _added.Add(e.Added); // ritade sträck lägg läggs till här
                 _removed.Clear(); // gör så att man inte kan redo:a sträck som togs bort innan det senaste sträcket
             }
+            else if (handle && StandardCanvas.DefaultDrawingAttributes == LineTool)
+            {
+                _addedVisualStrokes.Add(e.Added); // ritade sträck lägg läggs till här
+                _removed.Clear();
+            }
         }
 
-        private void Undo(object sender, RoutedEventArgs e)
+        private void Undo()
         {
             handle = false;
-            if (_added.Count > 0)
+            if (_added.Count > 1)
             {
                 _removed.Add(_added[_added.Count - 1]); // sparar borttaget sträck
                 StandardCanvas.Strokes.Remove(_added[_added.Count - 1]); // tar bort det senaste ritade sträcket från tavlan
@@ -85,14 +87,14 @@ namespace Paint
             handle = true;
         }
 
-        private void Redo(object sender, RoutedEventArgs e)
+        private void Redo()
         {
             handle = false;
             if (_added.Count >= 0 && _removed.Count > 0)
             {
-                _added.Add(_removed[_removed.Count-1]); // lägger till sträcken i "finns" listan
-                StandardCanvas.Strokes.Add(_removed[_removed.Count-1]); // lägger till sträcket på tavlan
-                _removed.Remove(_removed[_removed.Count-1]); // tar bort sträcket från bortaget listan
+                _added.Add(_removed[_removed.Count - 1]); // lägger till sträcken i "finns" listan
+                StandardCanvas.Strokes.Add(_removed[_removed.Count - 1]); // lägger till sträcket på tavlan
+                _removed.Remove(_removed[_removed.Count - 1]); // tar bort sträcket från bortaget listan
             }
             handle = true;
         }
@@ -122,12 +124,12 @@ namespace Paint
 
         private void RedoButton(object sender, RoutedEventArgs e)
         {
-            Redo(sender, e);
+            Redo();
         }
 
         private void UndoButton(object sender, RoutedEventArgs e)
         {
-            Undo(sender, e);
+            Undo();
         }
         private void SaveButtonClick(object sender, RoutedEventArgs e)
         {
@@ -138,114 +140,80 @@ namespace Paint
         {
 
         }
-
-
-
-
-
-
-
-        
-
-        
         private void ButtonLineTool(object sender, RoutedEventArgs e)  // vilken from som ska göras
         {
-            currShape = MyShape.Line;  // av funktionerna som gör linjer sk avi endast göra en line
             StandardCanvas.DefaultDrawingAttributes = LineTool; // stänger av pennan 
         }
 
-        private void FirstLine ()
+        public void DrawFirstLine()  
         {
-            Line newLine = new() {Stroke = Brushes.Transparent, X1 = start.X, Y1 = start.Y, X2 = end.X, Y2 = end.Y};
 
-            _finalLines.Add(newLine);
-            _visibleLine = newLine;
+            Stroke newStroke = _shapeTools.DrawLine(new Point(0,0), new Point(0,0), Colors.Transparent, SizeSlider.Value);
+
+            StrokeCollection strokeCollection = new();
+            strokeCollection.Add(newStroke);
+
+            _added.Add(strokeCollection);
+            _addedVisualStrokes.Add(strokeCollection);
+            StandardCanvas.Strokes.Add(newStroke); // lägger till linjen på tavlan
+
         }
 
-        private void StandardCanvas_MouseDown (object sender, MouseButtonEventArgs e)
+        private void RemoveVisualLine()
         {
-            Debug.WriteLine("MouseDown");
+            if (_added.Count > 0 && _addedVisualStrokes.Count > 0)
+            {
+                if (_added[_added.Count - 1] != _addedVisualStrokes[_addedVisualStrokes.Count - 1]) // är det senaste sträcket ett permanent sträck?
+                {                                               // nej
+                    StandardCanvas.Strokes.Remove(_addedVisualStrokes[_addedVisualStrokes.Count - 1]); // ta då bort det
+                    //_visualStroke
 
+                }
+            }
+        }
+        private void StandardCanvas_MouseDown(object sender, MouseButtonEventArgs e)
+        {
             if (StandardCanvas.DefaultDrawingAttributes == LineTool)
             {
                 start = e.GetPosition(StandardCanvas);
-
-                Debug.WriteLine($"Start {end.ToString()}");
             }
         }
-
-        private void DrawShape()
+        private void StandardCanvas_MouseUp(object sender, MouseButtonEventArgs e)  // aktiverar
         {
-            switch (currShape)
+            if (StandardCanvas.DefaultDrawingAttributes == LineTool)
             {
-                case MyShape.Line:
-                    DrawLine();
-                    break;
-                default:
-                    return;
-            }
-        }
+                StrokeCollection strokecollection = new();
+                strokecollection.Add(_addedVisualStrokes[_addedVisualStrokes.Count - 1]); // lägger in den senaste visual linen i den riktiga line listan
+                _added.Add(strokecollection);
 
-        private void StandardCanvas_MouseUp(object sender, MouseButtonEventArgs e)
-        {
-            switch (currShape)
-            {
-                case MyShape.Line:
-                    _finalLines.Add(DrawLine()); // ska kopplas samman med undo redo och undo DEN RIKTIGA LINJEN
-                    break;
-                default:
-                    return;
+                //StandardCanvas.Strokes.Remove(_addedVisualStrokes);
+                _addedVisualStrokes.Clear(); // tömmer listan
             }
         }
 
         private void StandardCanvas_MouseMove(object sender, MouseEventArgs e) // trackar hela tiden när musen rör sig vart den är
         {
-            //Debug.WriteLine(e.GetPosition(this));
-            if (e.LeftButton == MouseButtonState.Pressed && StandardCanvas.DefaultDrawingAttributes == LineTool) //ta positionen där vänster klick händer
+            if (e.LeftButton == MouseButtonState.Pressed && StandardCanvas.DefaultDrawingAttributes != PenTool && StandardCanvas.DefaultDrawingAttributes != EraserTool)
             {
+                end = e.GetPosition(StandardCanvas);
+                RemoveVisualLine();
+                Stroke newStroke = _shapeTools.DrawLine(new Point(0, 0), new Point(0, 0), Colors.Transparent, SizeSlider.Value);
+                StrokeCollection strokecollection = new();  //Lägger newLine i strokecollection
 
-                if (_finalLines.Count > 0)
+                if (StandardCanvas.DefaultDrawingAttributes == LineTool)
                 {
-                    Debug.WriteLine("Finallines more than 0");
-                    if (_finalLines[_finalLines.Count - 1] != _visibleLine)
-                    {
-                        Debug.WriteLine("Make red");
-                        _visibleLine.Stroke = Brushes.Transparent;
-                    }
+                    newStroke = _shapeTools.DrawLine(start, end, _color, SizeSlider.Value); ; // skapar newLine
                 }
-                end = e.GetPosition(StandardCanvas); // ger slut coord aka där musen är
-                DrawShape(); // ritar ut linjen
+                else if (StandardCanvas.DefaultDrawingAttributes == RectangleTool)
+                {
+                    newStroke = _shapeTools.DrawRectangle(start, end);
+                }
+                
+                strokecollection.Add(newStroke);
+                _addedVisualStrokes.Add(strokecollection);
 
-                Debug.WriteLine($"End {end.ToString()}");
+                StandardCanvas.Strokes.Add(newStroke); // lägger till newLine på tavlan
             }
         }
-
-        private Line DrawLine()  // när man har datan
-        {
-            Debug.WriteLine("DrawLine");
-            Line newLine = new()
-            {
-                Stroke = Brushes.Blue,
-                StrokeThickness = SizeSlider.Value,
-                StrokeEndLineCap = PenLineCap.Round,
-                StrokeStartLineCap = PenLineCap.Round,
-                X1 = start.X,
-                Y1 = start.Y,
-                X2 = end.X,
-                Y2 = end.Y
-            };
-
-            _visibleLine = newLine;
-
-            StandardCanvas.Children.Add(newLine);
-
-            return newLine;
-        }
-
-        private enum MyShape
-        {
-            Line, Ellipse, Rectangle
-        }
-
     }
 }
