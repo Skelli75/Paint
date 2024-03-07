@@ -152,6 +152,11 @@ namespace Paint
         {
             Undo(sender, e);
         }
+
+        private void LoadButtonClick(object sender, RoutedEventArgs e)
+        {
+            LoadImageFromFile();
+        }
         /* Buttons */
 
         private void SizeSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) //Tilldelar SizeSliderns value till både height och width på verktygen
@@ -185,25 +190,27 @@ namespace Paint
             StandardCanvas.Width = (Paint.Width / 3) * 2;
         }
 
-        
-
-        private void LoadButtonClick(object sender, RoutedEventArgs e)
+        private void LoadImageFromFile() 
         {
+            //Startar OpenFileDialog för att användaren ska kunna välja en jpg 
             OpenFileDialog open = new OpenFileDialog();
             open.Filter = "JPeg Image|*.jpg";
             open.ShowDialog();
-
+            
+            //sparar jpg:en som en image 
             Stream fileStream = open.OpenFile();
-            System.Drawing.Image fileContent;
+            System.Drawing.Image fileContent = System.Drawing.Image.FromStream(fileStream);
 
-            fileContent = System.Drawing.Image.FromStream(fileStream);
-
+            //Omvandlar Image filecontent till en bitmap
             Bitmap bitmap = new(fileContent);
 
+            //Laddar upp bitmapen på canvas:en
             LoadBitmaptoCanvas(bitmap);
         }
 
-        private System.Drawing.Color GetColorUnderMouse(MouseEventArgs m)
+        
+
+        private Color GetColorUnderMouse(MouseEventArgs m) //return:ar färgen där man klickar
         {
             Bitmap bitmap = RenderTargetBitmap();
             Color color = bitmap.GetPixel((int)m.GetPosition(StandardCanvas).X, (int)m.GetPosition(StandardCanvas).Y);
@@ -213,7 +220,8 @@ namespace Paint
 
         private void CanvasClick(object sender, MouseButtonEventArgs e)
         {
-            if (StandardCanvas.DefaultDrawingAttributes == FillTool)
+            //kollar vilket verktyg som är aktivt
+            if (StandardCanvas.DefaultDrawingAttributes == FillTool) 
             {
                 Color targetColor = GetColorUnderMouse(e);
                 Color replacementColor = _color;
@@ -225,7 +233,7 @@ namespace Paint
             }
         }
 
-        private Bitmap RenderTargetBitmap()
+        private Bitmap RenderTargetBitmap() //Renders the canvas to a RenderTargetBitmap
         {
             RenderTargetBitmap rtb = new((int)StandardCanvas.Width, (int)StandardCanvas.Height, 96, 96, System.Windows.Media.PixelFormats.Default);
             rtb.Render(StandardCanvas);
@@ -238,8 +246,32 @@ namespace Paint
 
             return new Bitmap(ms);
         }
-       
-        private void FloodFill(Bitmap bmp, System.Windows.Point pt, Color replacementColor, Color targetColor)
+        private BitmapImage BitmapToBitmapImage(Bitmap bitmap) //Omvandlar en bitmap till en bitmapimage
+        {
+            using (var memory = new MemoryStream())
+            {
+                bitmap.Save(memory, ImageFormat.Png);
+                memory.Position = 0;
+
+                var bitmapImage = new BitmapImage();
+                bitmapImage.BeginInit();
+                bitmapImage.StreamSource = memory;
+                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapImage.EndInit();
+                bitmapImage.Freeze();
+
+                return bitmapImage;
+            }
+        }
+        private void LoadBitmaptoCanvas(Bitmap bitmap)
+        {
+            System.Windows.Media.ImageBrush ib = new();
+            ib.ImageSource = BitmapToBitmapImage(bitmap);
+
+            StandardCanvas.Background = ib;
+        }
+
+        private void FloodFill(Bitmap bmp, System.Windows.Point pt, Color replacementColor, Color targetColor) //Fyller en friformat ritat figur
         {
             targetColor = bmp.GetPixel((int)pt.X, (int)pt.Y);
             if (targetColor.ToArgb().Equals(replacementColor.ToArgb()))
@@ -288,32 +320,6 @@ namespace Paint
 
             }
             LoadBitmaptoCanvas(bmp);
-        }
-
-        private BitmapImage BitmapToBitmapImage(Bitmap bitmap)
-        {
-            using (var memory = new MemoryStream())
-            {
-                bitmap.Save(memory, ImageFormat.Png);
-                memory.Position = 0;
-
-                var bitmapImage = new BitmapImage();
-                bitmapImage.BeginInit();
-                bitmapImage.StreamSource = memory;
-                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                bitmapImage.EndInit();
-                bitmapImage.Freeze();
-
-                return bitmapImage;
-            }
-        }
-
-        private void LoadBitmaptoCanvas(Bitmap bitmap)
-        {
-            System.Windows.Media.ImageBrush ib = new();
-            ib.ImageSource = BitmapToBitmapImage(bitmap);
-
-            StandardCanvas.Background = ib;
         }
     }
 }
