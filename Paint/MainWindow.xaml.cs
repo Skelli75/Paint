@@ -297,7 +297,7 @@ namespace Paint
                 {
                     bmp.SetPixel((int)temp.X, y1, replacementColor);
 
-                    if (!spanLeft && temp.X > 0 && bmp.GetPixel((int)temp.X - 1, y1) == targetColor) //John gjorde koden som är dålig och fungerar inte @admin banna Johnmaster64 genast
+                    if (temp.X > 1 && !spanLeft && temp.X > 0 && bmp.GetPixel((int)temp.X - 1, y1) == targetColor) //John gjorde koden som är dålig och fungerar inte @admin banna Johnmaster64 genast
                     {
                         pixels.Push(new System.Windows.Point(temp.X - 1, y1));
                         spanLeft = true;
