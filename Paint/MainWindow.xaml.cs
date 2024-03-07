@@ -40,7 +40,7 @@ namespace Paint
 
         private readonly DrawingAttributes EraserTool = new() 
         {
-            Color = System.Windows.Media.Colors.Pink,
+            Color = System.Windows.Media.Colors.White,
             Height = 4,
             Width = 4
         };
@@ -57,6 +57,7 @@ namespace Paint
 
             //anger standard drawing tool som pentool och standard färgen som svart
             StandardCanvas.DefaultDrawingAttributes = PenTool;
+            StandardCanvas.UseCustomCursor = true;
             _color = Color.Black;
 
             //Ger sizeslider min och max värden
@@ -69,9 +70,9 @@ namespace Paint
 
         private void Strokes_StrokesChanged(object sender, StrokeCollectionChangedEventArgs e)
         {
-            if (handle)
+            if (handle) //ser till så att inga sträck kan läggas till medans undo och redo utförs
             {
-                _added.Add(e.Added); 
+                _added.Add(e.Added); //
                 _removed.Clear(); // gör så att man inte kan redo:a sträck som togs bort innan det senaste sträcket
             }
         }
@@ -81,7 +82,7 @@ namespace Paint
             handle = false;
             if (_added.Count > 0)
             {
-                _removed.Add(_added[_added.Count - 1]); // sparar borttaget sträck
+                _removed.Add(_added[_added.Count - 1]); // sparar det senaste ritade sträcket för att senare kunna redo:a om det önskas
                 StandardCanvas.Strokes.Remove(_added[_added.Count - 1]); // tar bort det senaste ritade sträcket från tavlan
                 _added.Remove(_added[_added.Count - 1]); // tar bort sträcket från "finns på tavlan" listan
             }
@@ -93,47 +94,47 @@ namespace Paint
             handle = false;
             if (_added.Count >= 0 && _removed.Count > 0)
             {
-                _added.Add(_removed[_removed.Count - 1]); // lägger till sträcken i "finns" listan
-                StandardCanvas.Strokes.Add(_removed[_removed.Count - 1]); // lägger till sträcket på tavlan
-                _removed.Remove(_removed[_removed.Count - 1]); // tar bort sträcket från bortaget listan
+                _added.Add(_removed[_removed.Count - 1]); // lägger tillbaka det senaste borttagna sträcket i "finns på tavlan" listan
+                StandardCanvas.Strokes.Add(_removed[_removed.Count - 1]); // lägger tillbaka sträcket på tavlan
+                _removed.Remove(_removed[_removed.Count - 1]); // tar bort sträcket från listan med borttagna sträck
             }
             handle = true;
         }
 
         /* Buttons */
-        private void ButtonEraserTool(object sender, RoutedEventArgs e)
+        private void EraserToolButton(object sender, RoutedEventArgs e)
         {
             StandardCanvas.DefaultDrawingAttributes = EraserTool;
             UpdateSizeSlider();
         }
 
-        private void ButtonPencilTool(object sender, RoutedEventArgs e)
+        private void PencilToolButton(object sender, RoutedEventArgs e)
         {
             StandardCanvas.DefaultDrawingAttributes = PenTool;
             UpdateSizeSlider();
         }
 
-        public void ButtonFillTool(object sender, RoutedEventArgs e)
+        public void FillToolButton(object sender, RoutedEventArgs e)
         {
             StandardCanvas.DefaultDrawingAttributes = FillTool;
         }
 
-        private void ButtonLineTool(object sender, RoutedEventArgs e)
+        private void LineToolButton(object sender, RoutedEventArgs e)
         {
 
         }
 
-        private void ButtonBentLineTool(object sender, RoutedEventArgs e)
+        private void BentLineToolButton(object sender, RoutedEventArgs e)
         {
 
         }
 
-        private void ButtonCircleTool(object sender, RoutedEventArgs e)
+        private void CircleToolButton(object sender, RoutedEventArgs e)
         {
 
         }
 
-        private void ButtonSquareTool(object sender, RoutedEventArgs e)
+        private void SquareToolButton(object sender, RoutedEventArgs e)
         {
 
         }
@@ -207,8 +208,6 @@ namespace Paint
             //Laddar upp bitmapen på canvas:en
             LoadBitmaptoCanvas(bitmap);
         }
-
-        
 
         private Color GetColorUnderMouse(MouseEventArgs m) //return:ar färgen där man klickar
         {
