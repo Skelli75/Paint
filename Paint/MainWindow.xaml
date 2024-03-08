@@ -6,6 +6,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Paint"
         mc:Ignorable="d"
+		SizeChanged="UpdateWindow"
         Title="MainWindow" Height="450" Width="800">
     <Grid Background="#7F7F7F" Margin="0,0,0,0">
         <Grid.ColumnDefinitions>
@@ -32,14 +33,13 @@
         </StackPanel>
         <StackPanel Grid.Column="3" Margin="0,62,0,0" Grid.RowSpan="2">
             <Slider x:Name="SizeSlider" Width="108" ValueChanged="SizeSliderValueChanged"/>
-            <Button Content="Eraser" HorizontalAlignment="right"  VerticalAlignment="Top" Click="ButtonEraserTool"/>
-            <Button Content="Pencil" HorizontalAlignment="right" VerticalAlignment="Top" Click="ButtonPencilTool"/>
-            <Button Content="Fill" HorizontalAlignment="Right" VerticalAlignment="Top" Click="ButtonFillTool"/>
-            <Button Content="Line" HorizontalAlignment="Right" VerticalAlignment="Top" Click="ButtonLineTool"/>
-            <Button Content="Bent Line" HorizontalAlignment="Right" VerticalAlignment="Top" Click="ButtonBentLineTool"/>
-            <Button Content="Eplise" HorizontalAlignment="Right" VerticalAlignment="Top" Click="ButtonElipseTool"/>
-            <Button Content="Rectangle" HorizontalAlignment="Right" VerticalAlignment="Top" Click="ButtonRectangleTool"/>
-
+            <Button Content="Eraser" HorizontalAlignment="right"  VerticalAlignment="Top" Click="EraserToolButton"/>
+            <Button Content="Pencil" HorizontalAlignment="right" VerticalAlignment="Top" Click="PencilToolButton"/>
+            <Button Content="Fill" HorizontalAlignment="Right" VerticalAlignment="Top" Click="FillToolButton"/>
+            <Button Content="Line" HorizontalAlignment="Right" VerticalAlignment="Top" Click="LineToolButton"/>
+            <Button Content="Bent Line" HorizontalAlignment="Right" VerticalAlignment="Top" Click="BentLineToolButton"/>
+            <Button Content="Circle" HorizontalAlignment="Right" VerticalAlignment="Top" Click="EllipseToolButton"/>
+            <Button Content="Square" HorizontalAlignment="Right" VerticalAlignment="Top" Click="RectangleToolButton"/>
         </StackPanel>
     </Grid>
 </Window>
