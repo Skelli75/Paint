@@ -24,24 +24,24 @@ namespace Paint
         List<System.Windows.Ink.StrokeCollection> _added = new(); // två listor, en med sträck som finns och en med borttagna
         List<System.Windows.Ink.StrokeCollection> _visualStrokes = new(); // två listor, en med sträck som finns och en med borttagna
         List<System.Windows.Ink.StrokeCollection> _removed = new();
-        private Color _color;
+        private System.Windows.Media.Color _color;
         private ShapeTools _shapeTools;
 
         private bool handle = true;
-        Point start;  // skapar start och end punkterna
-        Point end;
+        System.Windows.Point start;  // skapar start och end punkterna
+        System.Windows.Point end;
         
         /* Definerar drawing tools */
         private readonly DrawingAttributes PenTool = new() 
         {
-            Color = System.Windows.Media.Colors.DarkGreen,
+            Color = Colors.DarkGreen,
             Height = 2,
             Width = 2
         };
 
         private readonly DrawingAttributes EraserTool = new() 
         {
-            Color = System.Windows.Media.Colors.White,
+            Color = Colors.White,
             Height = 4,
             Width = 4
         };
@@ -60,7 +60,7 @@ namespace Paint
 
         private readonly DrawingAttributes FillTool = new()
         {
-            Color = System.Windows.Media.Colors.Transparent,
+            Color = Colors.Transparent,
         };
         /* Definerar drawing tools */
 
@@ -77,7 +77,6 @@ namespace Paint
             _color = Colors.DarkOrchid;  // sätter standard färgen
             PenTool.Color = _color; // ger pennan standard färgen för det gick inte i konstruktorn
             StandardCanvas.UseCustomCursor = true;
-            _color = Color.Black;
 
             //Ger sizeslider min och max värden
             SizeSlider.Maximum = 100;
@@ -104,14 +103,14 @@ namespace Paint
             }   
         }
 
-        private void Undo()
         private void ClearStrokes()
         {
             StandardCanvas.Strokes.Clear();
             _added.Clear();
+            DrawFirstLine();
         }
 
-        private void Undo(object sender, RoutedEventArgs e)
+        private void Undo()
         {
             handle = false;
             if (_added.Count > 1)
@@ -153,26 +152,6 @@ namespace Paint
             StandardCanvas.DefaultDrawingAttributes = FillTool;
         }
 
-        private void LineToolButton(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void BentLineToolButton(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void CircleToolButton(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void SquareToolButton(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         private void SaveButtonClick(object sender, RoutedEventArgs e)
         {
             SaveCanvas();
@@ -187,20 +166,37 @@ namespace Paint
         {
             Undo();
         }
-        private void SaveButtonClick(object sender, RoutedEventArgs e)
+
+        private void LineToolButton(object sender, RoutedEventArgs e)  // vilken from som ska göras
+        {
+            StandardCanvas.DefaultDrawingAttributes = LineTool; // stänger av pennan 
+        }
+        private void RectangleToolButton(object sender, RoutedEventArgs e)
+        {
+            StandardCanvas.DefaultDrawingAttributes = RectangleTool;
+        }
+
+        private void EllipseToolButton(object sender, RoutedEventArgs e)
         {
 
         }
 
         private void LoadButtonClick(object sender, RoutedEventArgs e)
         {
-
+            LoadImageFromFile();
         }
+
+        private void ClearButtonClick(object sender, RoutedEventArgs e)
+        {
+            ClearStrokes();
+        }
+        /* Buttons */
+
 
         public void DrawFirstLine()  
         {
 
-            Stroke newStroke = _shapeTools.DrawLine(new Point(0,0), new Point(0,0), Colors.Transparent, SizeSlider.Value);
+            Stroke newStroke = _shapeTools.DrawLine(new System.Windows.Point(0,0), new System.Windows.Point(0,0), Colors.Transparent, SizeSlider.Value);
 
             StrokeCollection strokeCollection = new();
             strokeCollection.Add(newStroke);
@@ -224,9 +220,20 @@ namespace Paint
         }
         private void StandardCanvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            //kollar vilket verktyg som är aktivt
             if (StandardCanvas.DefaultDrawingAttributes == LineTool || StandardCanvas.DefaultDrawingAttributes == RectangleTool)
             {
                 start = e.GetPosition(StandardCanvas); // ger formen sin start koordinat
+            }
+            else if (StandardCanvas.DefaultDrawingAttributes == FillTool)
+            {
+                System.Drawing.Color targetColor = GetColorUnderMouse(e);
+                System.Drawing.Color replacementColor = System.Drawing.Color.FromArgb(_color.A, _color.R, _color.G, _color.B);
+
+                if (targetColor != replacementColor)
+                {
+                    FloodFill(RenderTargetBitmap(), e.GetPosition(StandardCanvas), replacementColor, targetColor);
+                }
             }
         }
         private void StandardCanvas_MouseUp(object sender, MouseButtonEventArgs e)  // aktiverar
@@ -249,7 +256,7 @@ namespace Paint
 
                     end = e.GetPosition(StandardCanvas);                                                  // tar koordinaten av slutet av linjen/formen
                     RemoveVisualLine();                                                                 // tar bort förra utritade visualline
-                    Stroke newStroke = _shapeTools.DrawLine(new Point(0, 0), new Point(0, 0), Colors.Transparent, SizeSlider.Value); // ritar ut en linje som sedan ska ändras
+                    Stroke newStroke = _shapeTools.DrawLine(new System.Windows.Point(0, 0), new System.Windows.Point(0, 0), Colors.Transparent, SizeSlider.Value); // ritar ut en linje som sedan ska ändras
                     StrokeCollection strokecollection = new();  //Lägger newLine i strokecollection
 
                     if (StandardCanvas.DefaultDrawingAttributes == LineTool)
@@ -269,39 +276,7 @@ namespace Paint
             }
         }
 
-        private void ButtonFillTool(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void ButtonLineTool(object sender, RoutedEventArgs e)  // vilken from som ska göras
-        {
-            StandardCanvas.DefaultDrawingAttributes = LineTool; // stänger av pennan 
-        }
-        private void ButtonRectangleTool(object sender, RoutedEventArgs e)
-        {
-            StandardCanvas.DefaultDrawingAttributes = RectangleTool;  
-        }
-
-        private void ButtonElipseTool(object sender, RoutedEventArgs e)
-        {
-
-        }
-        private void ButtonBentLineTool(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void LoadButtonClick(object sender, RoutedEventArgs e)
-        {
-            LoadImageFromFile();
-        }
-
-        private void ClearButtonClick(object sender, RoutedEventArgs e)
-        {
-            ClearStrokes();
-        }
-        /* Buttons */
+        
 
         private void SizeSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) //Tilldelar SizeSliderns value till både height och width på verktygen
         {
@@ -352,27 +327,9 @@ namespace Paint
             LoadBitmaptoCanvas(bitmap);
         }
 
-        private Color GetColorUnderMouse(MouseEventArgs m) //return:ar färgen där man klickar
+        private System.Drawing.Color GetColorUnderMouse(MouseEventArgs m) //return:ar färgen där man klickar
         {
-            Bitmap bitmap = RenderTargetBitmap();
-            Color color = bitmap.GetPixel((int)m.GetPosition(StandardCanvas).X, (int)m.GetPosition(StandardCanvas).Y);
-
-            return color;
-        }
-
-        private void CanvasClick(object sender, MouseButtonEventArgs e)
-        {
-            //kollar vilket verktyg som är aktivt
-            if (StandardCanvas.DefaultDrawingAttributes == FillTool) 
-            {
-                Color targetColor = GetColorUnderMouse(e);
-                Color replacementColor = _color;
-
-                if (targetColor != replacementColor)
-                {
-                    FloodFill(RenderTargetBitmap(), e.GetPosition(StandardCanvas), replacementColor, targetColor);
-                }
-            }
+            return RenderTargetBitmap().GetPixel((int)m.GetPosition(StandardCanvas).X, (int)m.GetPosition(StandardCanvas).Y);
         }
 
         private Bitmap RenderTargetBitmap() //Renders the canvas to a RenderTargetBitmap
@@ -413,7 +370,7 @@ namespace Paint
             StandardCanvas.Background = ib;
         }
 
-        private void FloodFill(Bitmap bmp, System.Windows.Point pt, Color replacementColor, Color targetColor) //Fyller en friformat ritat figur
+        private void FloodFill(Bitmap bmp, System.Windows.Point pt, System.Drawing.Color replacementColor, System.Drawing.Color targetColor) //Fyller en friformat ritat figur
         {
             targetColor = bmp.GetPixel((int)pt.X, (int)pt.Y);
             if (targetColor.ToArgb().Equals(replacementColor.ToArgb()))

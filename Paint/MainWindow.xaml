@@ -57,10 +57,10 @@
             <Button HorizontalAlignment="Right" VerticalAlignment="Top" Click="LineToolButton" Height="45" Width="45">
                 <Image Source="Resources/lineTool.png"/>
             </Button>
-            <Button HorizontalAlignment="Right" VerticalAlignment="Top" Click="CircleToolButton" Height="45" Width="45">
+            <Button HorizontalAlignment="Right" VerticalAlignment="Top" Click="EllipseToolButton" Height="45" Width="45">
                 <Image Source="Resources/circleTool.png"/>
             </Button>
-            <Button HorizontalAlignment="Right" VerticalAlignment="Top" Click="SquareToolButton" Height="45" Width="45">
+            <Button HorizontalAlignment="Right" VerticalAlignment="Top" Click="RectangleToolButton" Height="45" Width="45">
                 <Image Source="Resources/rectangleTool.png"/>
             </Button>
 
