@@ -8,8 +8,45 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Icons\**" />
+    <EmbeddedResource Remove="Icons\**" />
+    <None Remove="Icons\**" />
+    <Page Remove="Icons\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\brushTool.png" />
+    <None Remove="Resources\circleTool.png" />
+    <None Remove="Resources\clear.png" />
+    <None Remove="Resources\colorPicker.png" />
+    <None Remove="Resources\eraserTool.png" />
+    <None Remove="Resources\fillTool.png" />
+    <None Remove="Resources\lineTool.png" />
+    <None Remove="Resources\openFile.png" />
+    <None Remove="Resources\rectangleTool.png" />
+    <None Remove="Resources\redo.png" />
+    <None Remove="Resources\save.png" />
+    <None Remove="Resources\undo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Extended.Wpf.Toolkit" Version="4.5.1" />
     <PackageReference Include="System.Drawing.Common" Version="8.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\brushTool.png" />
+    <Resource Include="Resources\circleTool.png" />
+    <Resource Include="Resources\clear.png" />
+    <Resource Include="Resources\colorPicker.png" />
+    <Resource Include="Resources\eraserTool.png" />
+    <Resource Include="Resources\fillTool.png" />
+    <Resource Include="Resources\lineTool.png" />
+    <Resource Include="Resources\openFile.png" />
+    <Resource Include="Resources\rectangleTool.png" />
+    <Resource Include="Resources\redo.png" />
+    <Resource Include="Resources\save.png" />
+    <Resource Include="Resources\undo.png" />
   </ItemGroup>
 
 </Project>

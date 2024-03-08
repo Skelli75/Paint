@@ -77,6 +77,12 @@ namespace Paint
             }
         }
 
+        private void ClearStrokes()
+        {
+            StandardCanvas.Strokes.Clear();
+            _added.Clear();
+        }
+
         private void Undo(object sender, RoutedEventArgs e)
         {
             handle = false;
@@ -157,6 +163,11 @@ namespace Paint
         private void LoadButtonClick(object sender, RoutedEventArgs e)
         {
             LoadImageFromFile();
+        }
+
+        private void ClearButtonClick(object sender, RoutedEventArgs e)
+        {
+            ClearStrokes();
         }
         /* Buttons */
 
@@ -262,7 +273,7 @@ namespace Paint
                 return bitmapImage;
             }
         }
-        private void LoadBitmaptoCanvas(Bitmap bitmap)
+        private void LoadBitmaptoCanvas(Bitmap bitmap) //Laddar in en bitmap på canvas:en
         {
             System.Windows.Media.ImageBrush ib = new();
             ib.ImageSource = BitmapToBitmapImage(bitmap);
@@ -316,8 +327,8 @@ namespace Paint
                     }
                     y1++;
                 }
-
             }
+            ClearStrokes();
             LoadBitmaptoCanvas(bmp);
         }
     }
