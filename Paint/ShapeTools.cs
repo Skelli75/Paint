@@ -32,7 +32,7 @@ namespace Paint
             return stroke;
         }
 
-        public Stroke DrawRectangle(Point start, Point end)  // när man har datan
+        public Stroke DrawRectangle(Point start, Point end, Color color, double sizeValue)  // när man har datan
         {
             StylusPointCollection pts = new();
 
@@ -40,8 +40,17 @@ namespace Paint
             pts.Add(new StylusPoint(start.X, end.Y));
             pts.Add(new StylusPoint(end.X, end.Y));
             pts.Add(new StylusPoint(end.X, start.Y));
+            pts.Add(new StylusPoint(start.X, start.Y));
 
-            Stroke stroke = new(pts);
+            DrawingAttributes dA = new()
+            {
+                Color = color,
+                Height = sizeValue,
+                Width = sizeValue,
+                StylusTip = StylusTip.Rectangle
+            };
+
+            Stroke stroke = new(pts, dA);
 
             return stroke;
         }
