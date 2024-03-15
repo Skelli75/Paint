@@ -54,6 +54,26 @@ namespace Paint
 
             return stroke;
         }
+        private Stroke DrawEllipse(Point center, double radiusX, double radiusY, int pointsCount)
+        {
+            StylusPointCollection stylusPoints = new StylusPointCollection();
+
+            // Calculate points around the ellipse and add them to the StylusPointCollection
+            for (int i = 0; i < pointsCount; i++)
+            {
+                
+                double angle = (double)i / pointsCount * 2 * Math.PI;
+                double x = center.X + radiusX * Math.Cos(angle);
+                double y = center.Y + radiusY * Math.Sin(angle);
+
+                stylusPoints.Add(new StylusPoint(x, y));
+            }
+
+            // Create a stroke from the StylusPointCollection
+            Stroke stroke = new Stroke(stylusPoints);
+
+            return stroke;
+        }
     }
 }
 

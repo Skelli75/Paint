@@ -6,7 +6,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using System.Windows.Ink;
 using Microsoft.Win32;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -56,6 +55,12 @@ namespace Paint
         {
             Color = Colors.Transparent,
             Width = 2,  // endast för att skilja den frå Linetool då de annars förvirras med varandra av koden
+        };
+
+        private readonly DrawingAttributes EllipseTool = new()
+        {
+            Color = Colors.Transparent,
+            Width = 3,
         };
 
         private readonly DrawingAttributes FillTool = new()
@@ -178,7 +183,7 @@ namespace Paint
 
         private void EllipseToolButton(object sender, RoutedEventArgs e)
         {
-
+            StandardCanvas.DefaultDrawingAttributes = EllipseTool;
         }
 
         private void LoadButtonClick(object sender, RoutedEventArgs e)
@@ -221,7 +226,7 @@ namespace Paint
         private void StandardCanvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
             //kollar vilket verktyg som är aktivt
-            if (StandardCanvas.DefaultDrawingAttributes == LineTool || StandardCanvas.DefaultDrawingAttributes == RectangleTool)
+            if (StandardCanvas.DefaultDrawingAttributes == LineTool || StandardCanvas.DefaultDrawingAttributes == RectangleTool || StandardCanvas.DefaultDrawingAttributes == EllipseTool)
             {
                 start = e.GetPosition(StandardCanvas); // ger formen sin start koordinat
             }
@@ -238,7 +243,7 @@ namespace Paint
         }
         private void StandardCanvas_MouseUp(object sender, MouseButtonEventArgs e)  // aktiverar
         {
-            if (StandardCanvas.DefaultDrawingAttributes == LineTool || StandardCanvas.DefaultDrawingAttributes == RectangleTool)
+            if (StandardCanvas.DefaultDrawingAttributes == LineTool || StandardCanvas.DefaultDrawingAttributes == RectangleTool || StandardCanvas.DefaultDrawingAttributes == EllipseTool)
             {
                 StrokeCollection strokecollection = new();
                 strokecollection.Add(_visualStrokes[_visualStrokes.Count - 1]); // lägger in den senaste visual linen i den riktiga line listan
@@ -251,9 +256,8 @@ namespace Paint
         {
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                if (StandardCanvas.DefaultDrawingAttributes == RectangleTool || StandardCanvas.DefaultDrawingAttributes == LineTool) 
+                if (StandardCanvas.DefaultDrawingAttributes == RectangleTool || StandardCanvas.DefaultDrawingAttributes == LineTool || StandardCanvas.DefaultDrawingAttributes == EllipseTool) 
                 {
-
                     end = e.GetPosition(StandardCanvas);                                                  // tar koordinaten av slutet av linjen/formen
                     RemoveVisualLine();                                                                 // tar bort förra utritade visualline
                     Stroke newStroke = _shapeTools.DrawLine(new System.Windows.Point(0, 0), new System.Windows.Point(0, 0), Colors.Transparent, SizeSlider.Value); // ritar ut en linje som sedan ska ändras
@@ -266,6 +270,10 @@ namespace Paint
                     else if (StandardCanvas.DefaultDrawingAttributes == RectangleTool)
                     {
                         newStroke = _shapeTools.DrawRectangle(start, end, _color, SizeSlider.Value);
+                    }
+                    else if (StandardCanvas.DefaultDrawingAttributes == EllipseTool)
+                    {
+                        newStroke = _shapeTools.DrawEllipse(start, end, 500, _color, SizeSlider.Value);
                     }
 
                     strokecollection.Add(newStroke);
