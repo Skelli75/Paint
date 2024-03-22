@@ -108,13 +108,6 @@ namespace Paint
             }   
         }
 
-        private void ClearStrokes()
-        {
-            StandardCanvas.Strokes.Clear();
-            _added.Clear();
-            DrawFirstLine();
-        }
-
         private void Undo()
         {
             handle = false;
@@ -194,9 +187,24 @@ namespace Paint
         private void ClearButtonClick(object sender, RoutedEventArgs e)
         {
             ClearStrokes();
+            ClearBackground();
         }
         /* Buttons */
 
+        private void ClearBackground()
+        {
+            SolidColorBrush solidColorBrush = new SolidColorBrush();
+            solidColorBrush.Color = Colors.White;
+
+            StandardCanvas.Background = solidColorBrush;
+        }
+
+        private void ClearStrokes()
+        {
+            StandardCanvas.Strokes.Clear();
+            _added.Clear();
+            DrawFirstLine();
+        }
 
         public void DrawFirstLine()  
         {
@@ -217,9 +225,8 @@ namespace Paint
             if (_added.Count > 0 && _visualStrokes.Count > 0)
             {
                 if (_added[_added.Count - 1] != _visualStrokes[_visualStrokes.Count - 1]) // är det senaste sträcket ett permanent sträck?
-                {                                               // nej
+                {                                               
                     StandardCanvas.Strokes.Remove(_visualStrokes[_visualStrokes.Count - 1]); // ta då bort det
-                    //_visualStroke
                 }
             }
         }
@@ -237,8 +244,25 @@ namespace Paint
 
                 if (targetColor != replacementColor)
                 {
-                    FloodFill(RenderTargetBitmap(), e.GetPosition(StandardCanvas), replacementColor, targetColor);
-                }
+                    StylusPointCollection pts = FloodFill(RenderTargetBitmap(), e.GetPosition(StandardCanvas), targetColor, replacementColor);
+
+                    DrawingAttributes dA = new()
+                    {
+                        Color = _color,
+                        Height = SizeSlider.Value,
+                        Width = SizeSlider.Value,
+                        StylusTip = StylusTip.Rectangle
+                    };
+
+
+                    Stroke newStroke = new(pts, dA);
+                    StrokeCollection strokeCollection = new();
+                    strokeCollection.Add(newStroke);
+
+                    StandardCanvas.Strokes.Add(newStroke);
+
+                    _added.Add(strokeCollection);
+                }   
             }
         }
         private void StandardCanvas_MouseUp(object sender, MouseButtonEventArgs e)  // aktiverar
@@ -326,7 +350,7 @@ namespace Paint
             
             //sparar jpg:en som en image 
             Stream fileStream = open.OpenFile();
-            System.Drawing.Image fileContent = System.Drawing.Image.FromStream(fileStream);
+            Image fileContent = Image.FromStream(fileStream);
 
             //Omvandlar Image filecontent till en bitmap
             Bitmap bitmap = new(fileContent);
@@ -372,18 +396,20 @@ namespace Paint
         }
         private void LoadBitmaptoCanvas(Bitmap bitmap) //Laddar in en bitmap på canvas:en
         {
-            System.Windows.Media.ImageBrush ib = new();
+            ImageBrush ib = new();
             ib.ImageSource = BitmapToBitmapImage(bitmap);
 
             StandardCanvas.Background = ib;
         }
 
-        private void FloodFill(Bitmap bmp, System.Windows.Point pt, System.Drawing.Color replacementColor, System.Drawing.Color targetColor) //Fyller en friformat ritat figur
+        private StylusPointCollection FloodFill(Bitmap bmp, System.Windows.Point pt, System.Drawing.Color targetColor, System.Drawing.Color replacementColor) //Fyller en friformat ritat figur
         {
+            StylusPointCollection pts = new();
+
             targetColor = bmp.GetPixel((int)pt.X, (int)pt.Y);
             if (targetColor.ToArgb().Equals(replacementColor.ToArgb()))
             {
-                return;
+                return null;
             }
 
             Stack<System.Windows.Point> pixels = new Stack<System.Windows.Point>();
@@ -404,7 +430,38 @@ namespace Paint
                 {
                     bmp.SetPixel((int)temp.X, y1, replacementColor);
 
-                    if (temp.X > 1 && !spanLeft && temp.X > 0 && bmp.GetPixel((int)temp.X - 1, y1) == targetColor) //John gjorde koden som är dålig och fungerar inte @admin banna Johnmaster64 genast
+                    //bool add = true;
+                    //double tx = 0;
+                    //double ty = 0;
+
+
+                    //if (pts.Count > 0)
+                    //{
+                    //    tx = pts[pts.Count - 1].X;
+                    //    ty = pts[pts.Count - 1].Y;
+                    //    double absX = System.Math.Abs(tx - temp.X);
+                    //    double absY = System.Math.Abs(ty - y1);
+                    //    if (absX >= 200)
+                    //    {
+                    //        add = false;
+                    //    }
+                    //    if (absY >= 200)
+                    //    {
+                    //        add = false;
+                    //    }
+                    //}
+
+                    //if (add)
+
+
+                        pts.Add(new StylusPoint((int)temp.X, y1));
+
+
+                    //PRÖVA DRA LINJER HÄR INNE OCH BYTA FÄRG OM HOPPPET ÄR FÖR STORT
+
+
+
+                    if (temp.X > 1 && !spanLeft && bmp.GetPixel((int)temp.X - 1, y1) == targetColor) //John gjorde koden som är dålig och fungerar inte @admin banna Johnmaster64 genast
                     {
                         pixels.Push(new System.Windows.Point(temp.X - 1, y1));
                         spanLeft = true;
@@ -413,8 +470,8 @@ namespace Paint
                     {
                         spanLeft = false;
                     }
-                    if (!spanRight && temp.X < bmp.Width - 1 && bmp.GetPixel((int)temp.X + 1, y1) == targetColor)
-                    {
+                    else if (!spanRight && temp.X < bmp.Width - 1 && bmp.GetPixel((int)temp.X + 1, y1) == targetColor)
+                    { 
                         pixels.Push(new System.Windows.Point(temp.X + 1, y1));
                         spanRight = true;
                     }
@@ -425,8 +482,8 @@ namespace Paint
                     y1++;
                 }
             }
-            ClearStrokes();
-            LoadBitmaptoCanvas(bmp);
+
+            return pts;
         }
     }
 }
