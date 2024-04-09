@@ -5,12 +5,12 @@
 Description:
   This is a simple Paint program coded in Visual Studio (hence the VS in the name) using C# and WPF.  
   The program has simple tools such as:
-    * Pen and Eraser
-    * Bucket Fill
-    * Shape tools such as Line, Square and Ellipse
-    * Sliders for changing colors and the size of strokes
-    * Undo and Redo of strokes
-    * Save & Load functions
+    - Pen and Eraser
+    - Bucket Fill
+    - Shape tools such as Line, Square and Ellipse
+    - Sliders for changing colors and the size of strokes
+    - Undo and Redo of strokes
+    - Save & Load functions
 
 
 Instructions:
