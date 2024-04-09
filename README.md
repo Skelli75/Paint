@@ -1,5 +1,5 @@
   --------
-  VS Paint
+# VS Paint
   --------
 
 ## Description:
