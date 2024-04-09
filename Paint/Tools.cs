@@ -38,7 +38,8 @@ namespace Paint
 
         public void SetColor(System.Windows.Media.Color color)
         {
-            _canvas.DefaultDrawingAttributes.Color = color;
+            if (_canvas.DefaultDrawingAttributes != GetTool("line"))
+                _canvas.DefaultDrawingAttributes.Color = color;
         }
 
         public void SetTool(string tool)

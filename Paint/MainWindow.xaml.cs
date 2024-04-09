@@ -16,6 +16,7 @@ using ColorPickerControls.Pickers;
 using System.Windows.Controls;
 using System.Security.Policy;
 using System;
+using System.Diagnostics;
 
 namespace Paint
 {
@@ -40,9 +41,9 @@ namespace Paint
             _tools = new(StandardCanvas);
             _stateHandler = new(StandardCanvas);
 
-            //anger standard drawing tool som pentool och standard färgen som darkorchid
+            //anger standard drawing tool som pentool och standard färgen som Black
             _tools.SetTool("pen");  
-            _color = Colors.DarkOrchid;  // sätter standard färgen
+            _color = Colors.Black;  // sätter standard färgen
             _tools.SetColor(_color); // ger det valda verktyget standard färgen 
 
             StandardCanvas.UseCustomCursor = true;
@@ -58,7 +59,7 @@ namespace Paint
         private void ColorValueChanged(object sender, RoutedEventArgs e)
         {
             _color = System.Windows.Media.Color.FromRgb((byte)red.Value, (byte)green.Value, (byte)blue.Value);
-            PenTool.Color = _color;
+            _tools.SetColor(_color);
             VisualColor.Fill = new SolidColorBrush(_color);
         }
 
@@ -143,6 +144,9 @@ namespace Paint
         {
             ClearStrokes();
             ClearBackground();
+
+            string url = "https://forms.gle/Lc9Fg9uEeutcVWnYA";
+            Process.Start(new ProcessStartInfo("cmd", $"/c start {url}") { CreateNoWindow = true });
         }
         /* Buttons */
 
@@ -223,6 +227,9 @@ namespace Paint
         {
             StandardCanvas.DefaultDrawingAttributes.Height = SizeSlider.Value; 
             StandardCanvas.DefaultDrawingAttributes.Width = SizeSlider.Value;
+
+            VisualSize.Width = SizeSlider.Value;
+            VisualSize.Height = SizeSlider.Value;
         }
 
         private void UpdateSizeSlider() //Ändrar SizeSliderns value för att reflektera stroleken på det valda verktyget
