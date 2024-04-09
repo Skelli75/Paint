@@ -63,7 +63,12 @@
             <Button HorizontalAlignment="Right" VerticalAlignment="Top" Click="RectangleToolButton" Height="45" Width="45">
                 <Image Source="Resources/rectangleTool.png"/>
             </Button>
-
+        </StackPanel>
+        <StackPanel Grid.Row="1" Grid.Column="1">
+            <Rectangle x:Name="VisualColor" Width="100" Fill="CornflowerBlue" Height="100"/>
+            <Slider ValueChanged="ColorValueChanged" x:Name="red" Minimum="0" Maximum="255"></Slider>
+            <Slider ValueChanged="ColorValueChanged" x:Name="green" Minimum="0" Maximum="255"></Slider>
+            <Slider ValueChanged="ColorValueChanged" x:Name="blue" Minimum="0" Maximum="255"></Slider>
         </StackPanel>
     </Grid>
 </Window>

@@ -75,20 +75,25 @@ namespace Paint
 
             //anger standard drawing tool som pentool och standard färgen som svart
             StandardCanvas.DefaultDrawingAttributes = PenTool;
-            SizeSlider.Maximum = 25;
-            SizeSlider.Minimum = 1;
 
             _shapeTools = new ShapeTools();
-            _color = Colors.DarkOrchid;  // sätter standard färgen
+              // sätter standard färgen
             PenTool.Color = _color; // ger pennan standard färgen för det gick inte i konstruktorn
             StandardCanvas.UseCustomCursor = true;
 
             //Ger sizeslider min och max värden
-            SizeSlider.Maximum = 100;
-            SizeSlider.Minimum = 4;
+            SizeSlider.Maximum = 25;
+            SizeSlider.Minimum = 1;
 
             DrawFirstLine();
             StandardCanvas.Strokes.StrokesChanged += Strokes_StrokesChanged;
+        }
+
+        private void ColorValueChanged(object sender, RoutedEventArgs e)
+        {
+            _color = System.Windows.Media.Color.FromRgb((byte)red.Value, (byte)green.Value, (byte)blue.Value);
+            PenTool.Color = _color;
+            VisualColor.Fill = new SolidColorBrush(_color);
         }
 
         private void Strokes_StrokesChanged(object sender, StrokeCollectionChangedEventArgs e)
