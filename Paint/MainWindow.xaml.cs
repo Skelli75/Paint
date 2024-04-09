@@ -14,6 +14,7 @@ using System.Drawing.Imaging;
 using System.Windows.Media.Imaging;
 using ColorPickerControls.Pickers;
 using System.Windows.Controls;
+using System.Security.Policy;
 
 namespace Paint
 {
@@ -24,7 +25,6 @@ namespace Paint
     {
         private System.Windows.Media.Color _color;
         private Tools _tools;
-        MouseEventHandler _mouseEventHandler;
         StateHandler _stateHandler;
 
         private bool handle = true;
@@ -37,7 +37,6 @@ namespace Paint
             InitializeComponent();
 
             _tools = new(StandardCanvas);
-            _mouseEventHandler = new(_tools);
             _stateHandler = new(StandardCanvas);
 
             //anger standard drawing tool som pentool och standard färgen som svart
@@ -88,6 +87,24 @@ namespace Paint
             UpdateSizeSlider();
         }
 
+        private void LineToolButton(object sender, RoutedEventArgs e)
+        {
+            _tools.SetTool("line");
+            UpdateSizeSlider();
+
+        }
+        private void RectangleToolButton(object sender, RoutedEventArgs e)
+        {
+            _tools.SetTool("rectangle");
+            UpdateSizeSlider();
+        }
+
+        private void EllipseToolButton(object sender, RoutedEventArgs e)
+        {
+            _tools.SetTool("ellipse");
+            UpdateSizeSlider();
+        }
+
         public void FillToolButton(object sender, RoutedEventArgs e)
         {
             _tools.SetTool("fill");
@@ -112,19 +129,7 @@ namespace Paint
             handle = true;
         }
 
-        private void LineToolButton(object sender, RoutedEventArgs e) 
-        {
-            _tools.SetTool("line");
-        }
-        private void RectangleToolButton(object sender, RoutedEventArgs e)
-        {
-            _tools.SetTool("rectangle");
-        }
-
-        private void EllipseToolButton(object sender, RoutedEventArgs e)
-        {
-            _tools.SetTool("ellipse");
-        }
+        
 
         private void LoadButtonClick(object sender, RoutedEventArgs e)
         {
@@ -201,7 +206,20 @@ namespace Paint
                 if (StandardCanvas.DefaultDrawingAttributes == _tools.GetTool("rectangle") || StandardCanvas.DefaultDrawingAttributes == _tools.GetTool("line") || StandardCanvas.DefaultDrawingAttributes == _tools.GetTool("ellipse"))
                 {
                     _stateHandler.RemoveVisualLine();
-                    Stroke newStroke = _mouseEventHandler.MouseMove(start, end, _color, SizeSlider.Value, StandardCanvas);
+                    Stroke newStroke = _tools._drawTools.DrawLine(new System.Windows.Point(0, 0), new System.Windows.Point(0, 0), Colors.Transparent, SizeSlider.Value); // skapar en default stroke som sedan kan ändras
+
+                    if (StandardCanvas.DefaultDrawingAttributes == _tools.GetTool("line"))
+                    {
+                        newStroke = _tools._drawTools.DrawLine(start, end, _color, SizeSlider.Value); ; // skapar newLine
+                    }
+                    else if (StandardCanvas.DefaultDrawingAttributes == _tools.GetTool("rectangle"))
+                    {
+                        newStroke = _tools._drawTools.DrawRectangle(start, end, _color, SizeSlider.Value);
+                    }
+                    else if (StandardCanvas.DefaultDrawingAttributes == _tools.GetTool("ellipse"))
+                    {
+                        newStroke = _tools._drawTools.DrawEllipse(start, end, 500, _color, SizeSlider.Value);
+                    }
                     StrokeCollection strokeCollection = new() { newStroke };  //Lägger newLine i strokecollection
 
                     _stateHandler.AddToVisualStrokes(strokeCollection);
