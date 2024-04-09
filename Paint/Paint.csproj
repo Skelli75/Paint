@@ -15,6 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="References\ColorPicker.dll" />
+    <None Remove="References\ColorPickerControls.dll" />
     <None Remove="Resources\brushTool.png" />
     <None Remove="Resources\circleTool.png" />
     <None Remove="Resources\clear.png" />
@@ -30,8 +32,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Extended.Wpf.Toolkit" Version="4.5.1" />
     <PackageReference Include="System.Drawing.Common" Version="8.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="ColorPicker">
+      <HintPath>References\ColorPicker.dll</HintPath>
+    </Reference>
+    <Reference Include="ColorPickerControls">
+      <HintPath>References\ColorPickerControls.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>
@@ -47,6 +57,10 @@
     <Resource Include="Resources\redo.png" />
     <Resource Include="Resources\save.png" />
     <Resource Include="Resources\undo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="References\" />
   </ItemGroup>
 
 </Project>
