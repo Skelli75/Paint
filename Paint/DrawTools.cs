@@ -8,9 +8,9 @@ using System.Windows.Media;
 
 namespace Paint
 {
-    internal class ShapeTools
+    internal class DrawTools
     {
-        public ShapeTools() 
+        public DrawTools() 
         {
             
         }
@@ -86,6 +86,63 @@ namespace Paint
 
             return stroke;
         }
+
+        public StylusPointCollection FloodFill(System.Drawing.Bitmap bmp, Point pt, System.Drawing.Color targetColor, System.Drawing.Color replacementColor) //Fyller en friformat ritat figur BUG: spöklinjer förekommer när man fyller utanför en form
+        {
+            StylusPointCollection pts = new();
+
+            targetColor = bmp.GetPixel((int)pt.X, (int)pt.Y);
+            if (targetColor.ToArgb().Equals(replacementColor.ToArgb()))
+            {
+                return null;
+            }
+
+            Stack<System.Windows.Point> pixels = new Stack<System.Windows.Point>();
+
+            pixels.Push(pt);
+            while (pixels.Count != 0)
+
+            {
+                System.Windows.Point temp = pixels.Pop();
+                int y1 = (int)temp.Y;
+                while (y1 >= 0 && bmp.GetPixel((int)temp.X, y1) == targetColor)
+                {
+                    y1--;
+                }
+                y1++;
+                bool spanLeft = false;
+                bool spanRight = false;
+                while (y1 < bmp.Height && bmp.GetPixel((int)temp.X, y1) == targetColor)
+                {
+                    bmp.SetPixel((int)temp.X, y1, replacementColor);
+                    pts.Add(new StylusPoint((int)temp.X, y1));
+
+
+                    if (temp.X > 1 && !spanLeft && bmp.GetPixel((int)temp.X - 1, y1) == targetColor)
+                    {
+                        pixels.Push(new System.Windows.Point(temp.X - 1, y1));
+                        spanLeft = true;
+                    }
+                    else if (spanLeft && temp.X - 1 == 0 && bmp.GetPixel((int)temp.X - 1, y1) != targetColor)
+                    {
+                        spanLeft = false;
+                    }
+                    else if (!spanRight && temp.X < bmp.Width - 1 && bmp.GetPixel((int)temp.X + 1, y1) == targetColor)
+                    {
+                        pixels.Push(new System.Windows.Point(temp.X + 1, y1));
+                        spanRight = true;
+                    }
+                    else if (spanRight && temp.X < bmp.Width - 1 && bmp.GetPixel((int)temp.X + 1, y1) != targetColor)
+                    {
+                        spanRight = false;
+                    }
+                    y1++;
+                }
+            }
+
+            return pts;
+        }
+
     }
 }
 
