@@ -15,6 +15,7 @@ using System.Windows.Media.Imaging;
 using ColorPickerControls.Pickers;
 using System.Windows.Controls;
 using System.Security.Policy;
+using System;
 
 namespace Paint
 {
@@ -129,8 +130,6 @@ namespace Paint
             handle = true;
         }
 
-        
-
         private void LoadButtonClick(object sender, RoutedEventArgs e)
         {
             _tools.LoadImageFromFile();
@@ -143,28 +142,7 @@ namespace Paint
         }
         /* Buttons */
 
-        private void ClearBackground()
-        {
-            SolidColorBrush solidColorBrush = new SolidColorBrush();
-            solidColorBrush.Color = Colors.White;
-
-            StandardCanvas.Background = solidColorBrush;
-        }
-
-        private void ClearStrokes()
-        {
-            StandardCanvas.Strokes.Clear();
-            _stateHandler.ClearAdded();
-            DrawFirstLine();
-        }
-
-        public void DrawFirstLine()  
-        {
-            Stroke newStroke = _tools._drawTools.DrawLine(new System.Windows.Point(0, 0), new System.Windows.Point(0, 0), Colors.Transparent, SizeSlider.Value);
-            _stateHandler.AddToAdded(new StrokeCollection() { newStroke });   
-        }
-
-        
+        /* HID inputs*/
         private void StandardCanvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
             //kollar vilket verktyg som är aktivt
@@ -235,6 +213,7 @@ namespace Paint
             else if (e.Key == Key.Y)
                 _stateHandler.Redo();
         }
+        /* HID inputs*/
 
         private void SizeSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) //Tilldelar SizeSliderns value till både height och width på verktygen
         {
@@ -253,10 +232,36 @@ namespace Paint
             StandardCanvas.Width = (Paint.Width / 3) * 2;
         }
 
-        private void UpdateWindowMax(object sender, RoutedEventArgs e)
+        private void UpdateWindowMax(object sender, System.EventArgs e)
         {
-            StandardCanvas.Height = (Paint.Height / 3) * 2;
-            StandardCanvas.Width = (Paint.Width / 3) * 2;
+            double height = StandardCanvas.Height;
+            double width = StandardCanvas.Width;
+
+            StandardCanvas.Height = (SystemParameters.PrimaryScreenHeight / 3) * 2;
+            StandardCanvas.Width = (SystemParameters.PrimaryScreenWidth / 3) * 2;
+            double height2 = StandardCanvas.Height;
+            double width2 = StandardCanvas.Width;
+        }
+
+        private void ClearBackground()
+        {
+            SolidColorBrush solidColorBrush = new SolidColorBrush();
+            solidColorBrush.Color = Colors.White;
+
+            StandardCanvas.Background = solidColorBrush;
+        }
+
+        private void ClearStrokes()
+        {
+            StandardCanvas.Strokes.Clear();
+            _stateHandler.ClearAdded();
+            DrawFirstLine();
+        }
+
+        public void DrawFirstLine()
+        {
+            Stroke newStroke = _tools._drawTools.DrawLine(new System.Windows.Point(0, 0), new System.Windows.Point(0, 0), Colors.Transparent, SizeSlider.Value);
+            _stateHandler.AddToAdded(new StrokeCollection() { newStroke });
         }
 
         private System.Drawing.Color GetColorUnderMouse(MouseEventArgs m) //return:ar färgen där man klickar

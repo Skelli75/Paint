@@ -7,6 +7,7 @@
         xmlns:local="clr-namespace:Paint"
         mc:Ignorable="d"
 		SizeChanged="UpdateWindow"
+        StateChanged="UpdateWindowMax"
         KeyDown="PaintKeyDown"
         Title="MainWindow" Height="490" Width="848">
     <Grid x:Name="MainGrid" Background="#7F7F7F" Margin="0,0,0,0">
