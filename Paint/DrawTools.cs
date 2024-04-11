@@ -97,7 +97,7 @@ namespace Paint
                 return null;
             }
 
-            Stack<System.Windows.Point> pixels = new Stack<System.Windows.Point>();
+            Stack<System.Windows.Point> pixels = new Stack<Point>();
 
             pixels.Push(pt);
             while (pixels.Count != 0)

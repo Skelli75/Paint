@@ -6,8 +6,6 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Paint"
         mc:Ignorable="d"
-		SizeChanged="UpdateWindow"
-        StateChanged="UpdateWindowMax"
         KeyDown="PaintKeyDown"
         Title="MainWindow" Height="490" Width="848">
     <Grid x:Name="MainGrid" Background="#7F7F7F" Margin="0,0,0,0">
@@ -22,9 +20,8 @@
             <RowDefinition Height="5*"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <Canvas Grid.Column="2" Grid.Row="1">
-            <InkCanvas PreviewMouseLeftButtonDown="StandardCanvas_MouseDown" PreviewMouseMove="StandardCanvas_MouseMove" PreviewMouseLeftButtonUp="StandardCanvas_MouseUp" Name="StandardCanvas" VerticalAlignment="Top" HorizontalAlignment="Left" Background="White" Height="338" Width="576" Canvas.Top="-1" />
-        </Canvas>
+        <InkCanvas InkCanvas.Top="0" InkCanvas.Left="0"  Grid.Column="2" Grid.Row="1" PreviewMouseLeftButtonDown="StandardCanvas_MouseDown" PreviewMouseMove="StandardCanvas_MouseMove" PreviewMouseLeftButtonUp="StandardCanvas_MouseUp" Name="StandardCanvas" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="White" Cursor="Pen">
+        </InkCanvas>
         <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal" Margin="0,-1,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Height="50" Width="108" Grid.ColumnSpan="2">
             <Button ToolTip="Save" x:Name="SaveButton" HorizontalAlignment="Left" VerticalAlignment="Top" Click="SaveButtonClick" Width="30" Height="30">
                 <Image Source="Resources/save.png"/>
@@ -68,9 +65,18 @@
         </StackPanel>
         <StackPanel Grid.Row="1" Grid.Column="1">
             <Rectangle x:Name="VisualColor" Width="100" Fill="Black" Height="100"/>
-            <Slider ToolTip="Red" ValueChanged="ColorValueChanged" x:Name="red" Minimum="0" Maximum="255"></Slider>
-            <Slider ToolTip="Green" ValueChanged="ColorValueChanged" x:Name="green" Minimum="0" Maximum="255"></Slider>
-            <Slider ToolTip="Blue" ValueChanged="ColorValueChanged" x:Name="blue" Minimum="0" Maximum="255"></Slider>
+            <StackPanel Orientation="Horizontal">
+                <TextBox PreviewTextInput="CheckIfint" MaxLength="3" TextChanged="UpdateColorTextbox" x:Name="redTextBox" Margin="0,0,5,0"  Width="25" >0</TextBox>
+                <Slider ToolTip="Red Slider" ValueChanged="ColorValueChanged" x:Name="redSlider" Minimum="0" Maximum="255" Width="100"></Slider>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBox PreviewTextInput="CheckIfint" MaxLength="3" TextChanged="UpdateColorTextbox" x:Name="greenTextBox" Margin="0,0,5,0"  Width="25" >0</TextBox>
+                <Slider ToolTip="Green Slider" ValueChanged="ColorValueChanged" x:Name="greenSlider" Minimum="0" Maximum="255" Width="100"></Slider>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBox PreviewTextInput="CheckIfint" MaxLength="3" TextChanged="UpdateColorTextbox" x:Name="blueTextBox"  Margin="0,0,5,0"  Width="25" >0</TextBox>
+                <Slider ToolTip="Blue Slider" ValueChanged="ColorValueChanged" x:Name="blueSlider" Minimum="0" Maximum="255" Width="100"></Slider>
+            </StackPanel>
         </StackPanel>
         <StackPanel Grid.Row="0" Grid.Column="3" VerticalAlignment="Bottom">
             <Ellipse x:Name="VisualSize" Width="5" Fill="Black" Height="5" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>

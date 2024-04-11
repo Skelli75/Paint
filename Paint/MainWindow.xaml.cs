@@ -17,6 +17,7 @@ using System.Windows.Controls;
 using System.Security.Policy;
 using System;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace Paint
 {
@@ -25,7 +26,6 @@ namespace Paint
     /// </summary>
     public partial class MainWindow : Window
     {
-        private System.Windows.Media.Color _color;
         private Tools _tools;
         StateHandler _stateHandler;
 
@@ -42,9 +42,8 @@ namespace Paint
             _stateHandler = new(StandardCanvas);
 
             //anger standard drawing tool som pentool och standard färgen som Black
-            _tools.SetTool("pen");  
-            _color = Colors.Black;  // sätter standard färgen
-            _tools.SetColor(_color); // ger det valda verktyget standard färgen 
+            _tools.SetTool("pen"); 
+            _tools.SetColor(Colors.Black); //sätter standard färgen
 
             StandardCanvas.UseCustomCursor = true;
 
@@ -58,9 +57,16 @@ namespace Paint
 
         private void ColorValueChanged(object sender, RoutedEventArgs e)
         {
-            _color = System.Windows.Media.Color.FromRgb((byte)red.Value, (byte)green.Value, (byte)blue.Value);
-            _tools.SetColor(_color);
-            VisualColor.Fill = new SolidColorBrush(_color);
+            System.Windows.Media.Color color = System.Windows.Media.Color.FromRgb((byte)redSlider.Value, (byte)greenSlider.Value, (byte)blueSlider.Value);
+            _tools.SetColor(color);
+
+            SolidColorBrush brush = new(color);
+            VisualColor.Fill = brush;
+            VisualSize.Fill = brush;
+
+            redTextBox.Text = redSlider.Value.ToString();
+            greenTextBox.Text = greenSlider.Value.ToString();
+            blueTextBox.Text = blueSlider.Value.ToString();
         }
 
         private void Strokes_StrokesChanged(object sender, StrokeCollectionChangedEventArgs e)
@@ -137,6 +143,7 @@ namespace Paint
 
         private void LoadButtonClick(object sender, RoutedEventArgs e)
         {
+            ClearStrokes();
             _tools.LoadImageFromFile();
         }
 
@@ -145,8 +152,8 @@ namespace Paint
             ClearStrokes();
             ClearBackground();
 
-            string url = "https://forms.gle/Lc9Fg9uEeutcVWnYA";
-            Process.Start(new ProcessStartInfo("cmd", $"/c start {url}") { CreateNoWindow = true });
+            //string url = "https://forms.gle/Lc9Fg9uEeutcVWnYA";
+            //Process.Start(new ProcessStartInfo("cmd", $"/c start {url}") { CreateNoWindow = true });
         }
         /* Buttons */
 
@@ -161,12 +168,14 @@ namespace Paint
             else if (StandardCanvas.DefaultDrawingAttributes == _tools.GetTool("fill"))
             {
                 System.Drawing.Color targetColor = GetColorUnderMouse(e);
-                System.Drawing.Color replacementColor = System.Drawing.Color.FromArgb(_color.A, _color.R, _color.G, _color.B);
+
+                System.Windows.Media.Color color = _tools.GetColor();
+                System.Drawing.Color replacementColor = System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B);
 
                 if (targetColor != replacementColor)
                 {
                     StylusPointCollection pts = _tools._drawTools.FloodFill(_tools.RenderTargetBitmap(), e.GetPosition(StandardCanvas), targetColor, replacementColor);
-                    DrawingAttributes dA = new() { Color = _color, Height = SizeSlider.Value, Width = SizeSlider.Value, StylusTip = StylusTip.Rectangle };
+                    DrawingAttributes dA = new() { Color = color, Height = SizeSlider.Value, Width = SizeSlider.Value, StylusTip = StylusTip.Rectangle };
                     StrokeCollection newStroke = new StrokeCollection() { new Stroke(pts, dA) };
 
                     _stateHandler.AddToCanvas(newStroke);
@@ -196,15 +205,15 @@ namespace Paint
 
                     if (StandardCanvas.DefaultDrawingAttributes == _tools.GetTool("line"))
                     {
-                        newStroke = _tools._drawTools.DrawLine(start, end, _color, SizeSlider.Value); ; // skapar newLine
+                        newStroke = _tools._drawTools.DrawLine(start, end, _tools.GetColor(), SizeSlider.Value); ; // skapar newLine
                     }
                     else if (StandardCanvas.DefaultDrawingAttributes == _tools.GetTool("rectangle"))
                     {
-                        newStroke = _tools._drawTools.DrawRectangle(start, end, _color, SizeSlider.Value);
+                        newStroke = _tools._drawTools.DrawRectangle(start, end, _tools.GetColor(), SizeSlider.Value);
                     }
                     else if (StandardCanvas.DefaultDrawingAttributes == _tools.GetTool("ellipse"))
                     {
-                        newStroke = _tools._drawTools.DrawEllipse(start, end, 500, _color, SizeSlider.Value);
+                        newStroke = _tools._drawTools.DrawEllipse(start, end, 500, _tools.GetColor(), SizeSlider.Value);
                     }
                     StrokeCollection strokeCollection = new() { newStroke };  //Lägger newLine i strokecollection
 
@@ -217,9 +226,17 @@ namespace Paint
         private void PaintKeyDown(object sender,  KeyEventArgs e)
         {
             if (e.Key == Key.Z)
+            {
+                handle = false;
                 _stateHandler.Undo();
+                handle = true;
+            }
             else if (e.Key == Key.Y)
+            {
+                handle = false;
                 _stateHandler.Redo();
+                handle = true;
+            }
         }
         /* HID inputs*/
 
@@ -235,23 +252,6 @@ namespace Paint
         private void UpdateSizeSlider() //Ändrar SizeSliderns value för att reflektera stroleken på det valda verktyget
         {
             SizeSlider.Value = StandardCanvas.DefaultDrawingAttributes.Width;
-        }
-
-        private void UpdateWindow(object sender, RoutedEventArgs e) //Uppdaterar storleken av canvas:en när storleken av programmet ändras för att reflektera ändringen
-        {
-            StandardCanvas.Height = (Paint.Height / 3) * 2;
-            StandardCanvas.Width = (Paint.Width / 3) * 2;
-        }
-
-        private void UpdateWindowMax(object sender, System.EventArgs e)
-        {
-            double height = StandardCanvas.Height;
-            double width = StandardCanvas.Width;
-
-            StandardCanvas.Height = (SystemParameters.PrimaryScreenHeight / 3) * 2;
-            StandardCanvas.Width = (SystemParameters.PrimaryScreenWidth / 3) * 2;
-            double height2 = StandardCanvas.Height;
-            double width2 = StandardCanvas.Width;
         }
 
         private void ClearBackground()
@@ -278,6 +278,22 @@ namespace Paint
         private System.Drawing.Color GetColorUnderMouse(MouseEventArgs m) //return:ar färgen där man klickar
         {
             return _tools.RenderTargetBitmap().GetPixel((int)m.GetPosition(StandardCanvas).X, (int)m.GetPosition(StandardCanvas).Y);
+        }
+
+        private void UpdateColorTextbox(object sender, TextChangedEventArgs e)
+        {
+            if (redSlider != null && redTextBox != null && redTextBox.Text != "")
+                redSlider.Value = double.Parse(redTextBox.Text);
+            if (greenSlider != null && greenTextBox != null && greenTextBox.Text != "")
+                greenSlider.Value = double.Parse(greenTextBox.Text);
+            if (blueSlider != null && blueTextBox != null && blueTextBox.Text != "")
+                blueSlider.Value = double.Parse(blueTextBox.Text);
+        }
+
+        private void CheckIfint(object sender, TextCompositionEventArgs e)
+        {
+            Regex regex = new Regex("[^0-9]+");
+            e.Handled = regex.IsMatch(e.Text);
         }
     }
 }

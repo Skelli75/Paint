@@ -19,6 +19,7 @@ namespace Paint
         Dictionary<string, DrawingAttributes> _toolPresets;
         InkCanvas _canvas;
         public DrawTools _drawTools;
+        System.Windows.Media.Color _color;
 
         public Tools(InkCanvas canvas)
         {
@@ -34,12 +35,18 @@ namespace Paint
 
             _drawTools = new();
             _canvas = canvas;
+            _color = new();
         }
 
         public void SetColor(System.Windows.Media.Color color)
         {
-            if (_canvas.DefaultDrawingAttributes != GetTool("line"))
-                _canvas.DefaultDrawingAttributes.Color = color;
+            _color = color;
+            GetTool("pen").Color = _color;
+        }
+
+        public System.Windows.Media.Color GetColor()
+        {
+            return _color;
         }
 
         public void SetTool(string tool)
@@ -86,7 +93,10 @@ namespace Paint
 
         public Bitmap RenderTargetBitmap() //Renders the canvas to a RenderTargetBitmap
         {
-            RenderTargetBitmap rtb = new((int)_canvas.Width, (int)_canvas.Height, 96, 96, System.Windows.Media.PixelFormats.Default);
+            int width = (int)_canvas.ActualWidth;
+            int height = (int)_canvas.ActualHeight;
+
+            RenderTargetBitmap rtb = new(width, height, 96, 96, PixelFormats.Default);
             rtb.Render(_canvas);
             BmpBitmapEncoder encoder = new();
             encoder.Frames.Add(BitmapFrame.Create(rtb));
