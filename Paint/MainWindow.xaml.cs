@@ -17,6 +17,7 @@ using System.Windows.Controls;
 using System.Security.Policy;
 using System;
 using System.Diagnostics;
+using System.Data;
 using System.Text.RegularExpressions;
 
 namespace Paint
@@ -57,28 +58,32 @@ namespace Paint
 
         private void ColorValueChanged(object sender, RoutedEventArgs e)
         {
-            System.Windows.Media.Color color = System.Windows.Media.Color.FromRgb((byte)redSlider.Value, (byte)greenSlider.Value, (byte)blueSlider.Value);
-            _tools.SetColor(color);
+            _color = System.Windows.Media.Color.FromRgb((byte)red.Value, (byte)green.Value, (byte)blue.Value);
+            UpdateColor();
+            
+            //System.Windows.Media.Color color = System.Windows.Media.Color.FromRgb((byte)redSlider.Value, (byte)greenSlider.Value, (byte)blueSlider.Value);
+            //_tools.SetColor(color);
 
-            SolidColorBrush brush = new(color);
-            VisualColor.Fill = brush;
-            VisualSize.Fill = brush;
+            //SolidColorBrush brush = new(color);
+            //VisualColor.Fill = brush;
+            //VisualSize.Fill = brush;
 
-            redTextBox.Text = redSlider.Value.ToString();
-            greenTextBox.Text = greenSlider.Value.ToString();
-            blueTextBox.Text = blueSlider.Value.ToString();
+            //redTextBox.Text = redSlider.Value.ToString();
+            //greenTextBox.Text = greenSlider.Value.ToString();
+            //blueTextBox.Text = blueSlider.Value.ToString();
         }
+
 
         private void Strokes_StrokesChanged(object sender, StrokeCollectionChangedEventArgs e)
         {
             if (handle) //ser till så att inga sträck kan läggas till medans undo och redo utförs
             {
-                if (StandardCanvas.DefaultDrawingAttributes == _tools.GetTool("eraser") || StandardCanvas.DefaultDrawingAttributes == _tools.GetTool("pen"))
+                if (_tools.GetTool() == "eraser" || _tools.GetTool() == "pen")
                 {
                     _stateHandler.AddToAdded(e.Added); // ritade sträck läggs till här
                     _stateHandler.ClearRemove(); // gör så att man inte kan redo:a sträck som togs bort innan det senaste sträcket
                 }
-                else if (StandardCanvas.DefaultDrawingAttributes == _tools.GetTool("line") || StandardCanvas.DefaultDrawingAttributes == _tools.GetTool("rectangle"))
+                else if (_tools.GetTool() == "line" || _tools.GetTool() == "rectangle")
                 {
                     _stateHandler.AddToVisualStrokes(e.Added); // ritade shapes läggs till här
                     _stateHandler.ClearRemove();
@@ -87,16 +92,30 @@ namespace Paint
         }
 
         /* Buttons */
-        private void EraserToolButton(object sender, RoutedEventArgs e)
-        {
-            _tools.SetTool("eraser");
-            UpdateSizeSlider();
-        }
-
         private void PencilToolButton(object sender, RoutedEventArgs e)
         {
             _tools.SetTool("pen");
             UpdateSizeSlider();
+
+            ResetAllButtons();
+            PencilTool.Background = new SolidColorBrush(Colors.Gray);
+        }
+
+        private void EraserToolButton(object sender, RoutedEventArgs e)
+        {
+            _tools.SetTool("eraser");
+            UpdateSizeSlider();
+
+            ResetAllButtons();
+            EraserTool.Background = new SolidColorBrush(Colors.Gray);
+        }
+
+        private void ColorPickerButton(object sender, RoutedEventArgs e)
+        {
+            _tools.SetTool("colorPicker");
+
+            ResetAllButtons();
+            ColorPickerTool.Background = new SolidColorBrush(Colors.Gray);
         }
 
         private void LineToolButton(object sender, RoutedEventArgs e)
@@ -104,22 +123,33 @@ namespace Paint
             _tools.SetTool("line");
             UpdateSizeSlider();
 
+            ResetAllButtons();
+            LineTool.Background = new SolidColorBrush(Colors.Gray);
         }
         private void RectangleToolButton(object sender, RoutedEventArgs e)
         {
             _tools.SetTool("rectangle");
             UpdateSizeSlider();
+
+            ResetAllButtons();
+            RectangleTool.Background = new SolidColorBrush(Colors.Gray);
         }
 
         private void EllipseToolButton(object sender, RoutedEventArgs e)
         {
             _tools.SetTool("ellipse");
             UpdateSizeSlider();
+
+            ResetAllButtons();
+            EllipseTool.Background = new SolidColorBrush(Colors.Gray);
         }
 
         public void FillToolButton(object sender, RoutedEventArgs e)
         {
             _tools.SetTool("fill");
+
+            ResetAllButtons();
+            FillTool.Background = new SolidColorBrush(Colors.Gray);
         }
 
         private void SaveButtonClick(object sender, RoutedEventArgs e)
@@ -143,8 +173,9 @@ namespace Paint
 
         private void LoadButtonClick(object sender, RoutedEventArgs e)
         {
+            if (!_tools.LoadImageFromFile())
+                ErrorText.Content = "Error: Load file failed, did you select a file?";
             ClearStrokes();
-            _tools.LoadImageFromFile();
         }
 
         private void ClearButtonClick(object sender, RoutedEventArgs e)
@@ -160,12 +191,15 @@ namespace Paint
         /* HID inputs*/
         private void StandardCanvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            ErrorText.Content = "";
+
+
             //kollar vilket verktyg som är aktivt
-            if (StandardCanvas.DefaultDrawingAttributes == _tools.GetTool("line") || StandardCanvas.DefaultDrawingAttributes == _tools.GetTool("rectangle") || StandardCanvas.DefaultDrawingAttributes == _tools.GetTool("ellipse"))
+            if (_tools.GetTool() == "line" || _tools.GetTool() == "rectangle" || _tools.GetTool() == "ellipse")
             {
                 start = e.GetPosition(StandardCanvas); // ger formen sin start koordinat
             }
-            else if (StandardCanvas.DefaultDrawingAttributes == _tools.GetTool("fill"))
+            else if (_tools.GetTool() == "fill")
             {
                 System.Drawing.Color targetColor = GetColorUnderMouse(e);
 
@@ -182,11 +216,18 @@ namespace Paint
                     _stateHandler.AddToAdded(newStroke);
                 }   
             }
+            else if (_tools.GetTool() == "colorPicker")
+            {
+                System.Drawing.Color color = GetColorUnderMouse(e);
+
+                _color = System.Windows.Media.Color.FromArgb(color.A, color.R, color.G, color.B);
+                UpdateColor();
+            }
         }
 
         private void StandardCanvas_MouseUp(object sender, MouseButtonEventArgs e)  // 
         {
-            if (StandardCanvas.DefaultDrawingAttributes == _tools.GetTool("line") || StandardCanvas.DefaultDrawingAttributes == _tools.GetTool("rectangle") || StandardCanvas.DefaultDrawingAttributes == _tools.GetTool("ellipse"))
+            if (_tools.GetTool() == "line" || _tools.GetTool() == "rectangle" || _tools.GetTool() == "ellipse")
             {
                 _stateHandler.AddVisualLineToCanvas();
             }
@@ -198,20 +239,20 @@ namespace Paint
             {
                 end = e.GetPosition(StandardCanvas);
 
-                if (StandardCanvas.DefaultDrawingAttributes == _tools.GetTool("rectangle") || StandardCanvas.DefaultDrawingAttributes == _tools.GetTool("line") || StandardCanvas.DefaultDrawingAttributes == _tools.GetTool("ellipse"))
+                if (_tools.GetTool() == "rectangle" || _tools.GetTool() == "line" || _tools.GetTool() == "ellipse")
                 {
                     _stateHandler.RemoveVisualLine();
                     Stroke newStroke = _tools._drawTools.DrawLine(new System.Windows.Point(0, 0), new System.Windows.Point(0, 0), Colors.Transparent, SizeSlider.Value); // skapar en default stroke som sedan kan ändras
 
-                    if (StandardCanvas.DefaultDrawingAttributes == _tools.GetTool("line"))
+                    if (_tools.GetTool() =="line")
                     {
                         newStroke = _tools._drawTools.DrawLine(start, end, _tools.GetColor(), SizeSlider.Value); ; // skapar newLine
                     }
-                    else if (StandardCanvas.DefaultDrawingAttributes == _tools.GetTool("rectangle"))
+                    else if (_tools.GetTool() == "rectangle")
                     {
                         newStroke = _tools._drawTools.DrawRectangle(start, end, _tools.GetColor(), SizeSlider.Value);
                     }
-                    else if (StandardCanvas.DefaultDrawingAttributes == _tools.GetTool("ellipse"))
+                    else if (_tools.GetTool() == "ellipse")
                     {
                         newStroke = _tools._drawTools.DrawEllipse(start, end, 500, _tools.GetColor(), SizeSlider.Value);
                     }
@@ -239,6 +280,17 @@ namespace Paint
             }
         }
         /* HID inputs*/
+
+        private void ResetAllButtons()
+        {
+            PencilTool.Background = new SolidColorBrush(Colors.LightGray);
+            EraserTool.Background = new SolidColorBrush(Colors.LightGray);
+            ColorPickerTool.Background = new SolidColorBrush(Colors.LightGray);
+            FillTool.Background = new SolidColorBrush(Colors.LightGray);
+            LineTool.Background = new SolidColorBrush(Colors.LightGray);
+            EllipseTool.Background = new SolidColorBrush(Colors.LightGray);
+            RectangleTool.Background = new SolidColorBrush(Colors.LightGray);
+        }
 
         private void SizeSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) //Tilldelar SizeSliderns value till både height och width på verktygen
         {
@@ -271,7 +323,7 @@ namespace Paint
 
         public void DrawFirstLine()
         {
-            Stroke newStroke = _tools._drawTools.DrawLine(new System.Windows.Point(0, 0), new System.Windows.Point(0, 0), Colors.Transparent, SizeSlider.Value);
+            Stroke newStroke = _tools._drawTools.DrawLine(new System.Windows.Point(0, 0), new System.Windows.Point(0, 0), Colors.Transparent, 1);
             _stateHandler.AddToAdded(new StrokeCollection() { newStroke });
         }
 
@@ -280,6 +332,12 @@ namespace Paint
             return _tools.RenderTargetBitmap().GetPixel((int)m.GetPosition(StandardCanvas).X, (int)m.GetPosition(StandardCanvas).Y);
         }
 
+        private void UpdateColor()
+        {
+            _tools.SetColor(_color);
+            VisualColor.Fill = new SolidColorBrush(_color);
+        }
+        
         private void UpdateColorTextbox(object sender, TextChangedEventArgs e)
         {
             if (redSlider != null && redTextBox != null && redTextBox.Text != "")

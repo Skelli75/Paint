@@ -19,14 +19,18 @@ namespace Paint
         Dictionary<string, DrawingAttributes> _toolPresets;
         InkCanvas _canvas;
         public DrawTools _drawTools;
+
+        string _currentTool;
         System.Windows.Media.Color _color;
+
 
         public Tools(InkCanvas canvas)
         {
             _toolPresets = new Dictionary<string, DrawingAttributes>()
             {
-                { "pen", new DrawingAttributes() { Color = Colors.DarkGreen, Height = 2, Width = 2 } },
-                { "eraser", new DrawingAttributes() { Color = Colors.White, Height = 2, Width = 2 } },
+                { "pen", new DrawingAttributes() { Color = Colors.Black } },
+                { "eraser", new DrawingAttributes() { Color = Colors.White} },
+                { "colorPicker", new DrawingAttributes(){ Color = Colors.Transparent } },
                 { "line", new DrawingAttributes() { Color = Colors.Transparent, Width = 1 } },
                 { "rectangle", new DrawingAttributes() { Color = Colors.Transparent, Width = 2 } },
                 { "ellipse", new DrawingAttributes() { Color = Colors.Transparent, Width = 3, StylusTip = StylusTip.Ellipse } },
@@ -35,11 +39,14 @@ namespace Paint
 
             _drawTools = new();
             _canvas = canvas;
+            _currentTool = "pen";
             _color = new();
+
         }
 
         public void SetColor(System.Windows.Media.Color color)
         {
+            _toolPresets["pen"].Color = color;
             _color = color;
             GetTool("pen").Color = _color;
         }
@@ -52,43 +59,55 @@ namespace Paint
         public void SetTool(string tool)
         {
             _canvas.DefaultDrawingAttributes = _toolPresets[tool];
+            _currentTool = tool;
         }
 
-        public DrawingAttributes GetTool(string input)
+        public string GetTool()
         {
-            return _toolPresets[input];
+            return _currentTool;
         }
 
         public void SaveCanvas() //Sparar ner canvas bilden där man vill
         {
             //Startar en saveFileDialog för att låta användaren själv välja vart bilden ska sparas
-            SaveFileDialog save = new();
-            save.Filter = "JPeg Image|*.jpg";
-            save.Title = "Save an Image File";
-            save.FileName = "default";
-            save.ShowDialog();
-
-            //omvandlar inkcanvas:en till en bitmap och sparar sedan ner den som en jpg
-            Bitmap bitmap = RenderTargetBitmap();
-            bitmap.Save(save.FileName);
+            SaveFileDialog save = new()
+            {
+                Filter = "JPeg Image|*.jpg",
+                Title = "Save an Image File",
+                FileName = "default"
+            };
+            if (save.ShowDialog() == true)
+            {
+                //omvandlar inkcanvas:en till en bitmap och sparar sedan ner den som en jpg
+                Bitmap bitmap = RenderTargetBitmap();
+                bitmap.Save(save.FileName);
+            }
         }
 
-        public void LoadImageFromFile()
+        public bool LoadImageFromFile()
         {
             //Startar OpenFileDialog för att användaren ska kunna välja en jpg 
             OpenFileDialog open = new OpenFileDialog();
             open.Filter = "JPeg Image|*.jpg";
             open.ShowDialog();
 
-            //sparar jpg:en som en image 
-            Stream fileStream = open.OpenFile();
-            System.Drawing.Image fileContent = System.Drawing.Image.FromStream(fileStream);
+            try
+            {
+                //sparar jpg:en som en image 
+                Stream fileStream = open.OpenFile();
+                System.Drawing.Image fileContent = System.Drawing.Image.FromStream(fileStream);
 
-            //Omvandlar Image filecontent till en bitmap
-            Bitmap bitmap = new(fileContent);
+                //Omvandlar Image filecontent till en bitmap
+                Bitmap bitmap = new(fileContent);
 
-            //Laddar upp bitmapen på canvas:en
-            LoadBitmaptoCanvas(bitmap);
+                //Laddar upp bitmapen på canvas:en
+                LoadBitmaptoCanvas(bitmap);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
 
         public Bitmap RenderTargetBitmap() //Renders the canvas to a RenderTargetBitmap
@@ -97,6 +116,7 @@ namespace Paint
             int height = (int)_canvas.ActualHeight;
 
             RenderTargetBitmap rtb = new(width, height, 96, 96, PixelFormats.Default);
+
             rtb.Render(_canvas);
             BmpBitmapEncoder encoder = new();
             encoder.Frames.Add(BitmapFrame.Create(rtb));

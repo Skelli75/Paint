@@ -60,11 +60,6 @@ namespace Paint
             _visualStrokes.Clear(); // tömmer listan
         }
 
-        public void RemoveStroke(StrokeCollection stroke) 
-        { 
-            
-        }
-
         public void ClearAdded()
         {
             _added.Clear();
