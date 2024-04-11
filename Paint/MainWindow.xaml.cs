@@ -18,6 +18,7 @@ using System.Security.Policy;
 using System;
 using System.Diagnostics;
 using System.Data;
+using System.Text.RegularExpressions;
 
 namespace Paint
 {
@@ -26,7 +27,6 @@ namespace Paint
     /// </summary>
     public partial class MainWindow : Window
     {
-        private System.Windows.Media.Color _color;
         private Tools _tools;
         StateHandler _stateHandler;
 
@@ -43,9 +43,8 @@ namespace Paint
             _stateHandler = new(StandardCanvas);
 
             //anger standard drawing tool som pentool och standard färgen som Black
-            _tools.SetTool("pen");  
-            _color = Colors.Black;  // sätter standard färgen
-            _tools.SetColor(_color); // ger det valda verktyget standard färgen 
+            _tools.SetTool("pen"); 
+            _tools.SetColor(Colors.Black); //sätter standard färgen
 
             StandardCanvas.UseCustomCursor = true;
 
@@ -61,6 +60,17 @@ namespace Paint
         {
             _color = System.Windows.Media.Color.FromRgb((byte)red.Value, (byte)green.Value, (byte)blue.Value);
             UpdateColor();
+            
+            //System.Windows.Media.Color color = System.Windows.Media.Color.FromRgb((byte)redSlider.Value, (byte)greenSlider.Value, (byte)blueSlider.Value);
+            //_tools.SetColor(color);
+
+            //SolidColorBrush brush = new(color);
+            //VisualColor.Fill = brush;
+            //VisualSize.Fill = brush;
+
+            //redTextBox.Text = redSlider.Value.ToString();
+            //greenTextBox.Text = greenSlider.Value.ToString();
+            //blueTextBox.Text = blueSlider.Value.ToString();
         }
 
 
@@ -163,9 +173,9 @@ namespace Paint
 
         private void LoadButtonClick(object sender, RoutedEventArgs e)
         {
-
             if (!_tools.LoadImageFromFile())
                 ErrorText.Content = "Error: Load file failed, did you select a file?";
+            ClearStrokes();
         }
 
         private void ClearButtonClick(object sender, RoutedEventArgs e)
@@ -192,12 +202,14 @@ namespace Paint
             else if (_tools.GetTool() == "fill")
             {
                 System.Drawing.Color targetColor = GetColorUnderMouse(e);
-                System.Drawing.Color replacementColor = System.Drawing.Color.FromArgb(_color.A, _color.R, _color.G, _color.B);
+
+                System.Windows.Media.Color color = _tools.GetColor();
+                System.Drawing.Color replacementColor = System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B);
 
                 if (targetColor != replacementColor)
                 {
                     StylusPointCollection pts = _tools._drawTools.FloodFill(_tools.RenderTargetBitmap(), e.GetPosition(StandardCanvas), targetColor, replacementColor);
-                    DrawingAttributes dA = new() { Color = _color, Height = SizeSlider.Value, Width = SizeSlider.Value, StylusTip = StylusTip.Rectangle };
+                    DrawingAttributes dA = new() { Color = color, Height = SizeSlider.Value, Width = SizeSlider.Value, StylusTip = StylusTip.Rectangle };
                     StrokeCollection newStroke = new StrokeCollection() { new Stroke(pts, dA) };
 
                     _stateHandler.AddToCanvas(newStroke);
@@ -234,15 +246,15 @@ namespace Paint
 
                     if (_tools.GetTool() =="line")
                     {
-                        newStroke = _tools._drawTools.DrawLine(start, end, _color, SizeSlider.Value); ; // skapar newLine
+                        newStroke = _tools._drawTools.DrawLine(start, end, _tools.GetColor(), SizeSlider.Value); ; // skapar newLine
                     }
                     else if (_tools.GetTool() == "rectangle")
                     {
-                        newStroke = _tools._drawTools.DrawRectangle(start, end, _color, SizeSlider.Value);
+                        newStroke = _tools._drawTools.DrawRectangle(start, end, _tools.GetColor(), SizeSlider.Value);
                     }
                     else if (_tools.GetTool() == "ellipse")
                     {
-                        newStroke = _tools._drawTools.DrawEllipse(start, end, 500, _color, SizeSlider.Value);
+                        newStroke = _tools._drawTools.DrawEllipse(start, end, 500, _tools.GetColor(), SizeSlider.Value);
                     }
                     StrokeCollection strokeCollection = new() { newStroke };  //Lägger newLine i strokecollection
 
@@ -255,9 +267,17 @@ namespace Paint
         private void PaintKeyDown(object sender,  KeyEventArgs e)
         {
             if (e.Key == Key.Z)
+            {
+                handle = false;
                 _stateHandler.Undo();
+                handle = true;
+            }
             else if (e.Key == Key.Y)
+            {
+                handle = false;
                 _stateHandler.Redo();
+                handle = true;
+            }
         }
         /* HID inputs*/
 
@@ -316,6 +336,22 @@ namespace Paint
         {
             _tools.SetColor(_color);
             VisualColor.Fill = new SolidColorBrush(_color);
+        }
+        
+        private void UpdateColorTextbox(object sender, TextChangedEventArgs e)
+        {
+            if (redSlider != null && redTextBox != null && redTextBox.Text != "")
+                redSlider.Value = double.Parse(redTextBox.Text);
+            if (greenSlider != null && greenTextBox != null && greenTextBox.Text != "")
+                greenSlider.Value = double.Parse(greenTextBox.Text);
+            if (blueSlider != null && blueTextBox != null && blueTextBox.Text != "")
+                blueSlider.Value = double.Parse(blueTextBox.Text);
+        }
+
+        private void CheckIfint(object sender, TextCompositionEventArgs e)
+        {
+            Regex regex = new Regex("[^0-9]+");
+            e.Handled = regex.IsMatch(e.Text);
         }
     }
 }

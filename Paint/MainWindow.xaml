@@ -34,7 +34,6 @@
         </StackPanel>
         <Label x:Name="ErrorText" Foreground="Red" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Margin="0,30,0,0"></Label>
 
-
         <StackPanel Orientation="Horizontal" Grid.Column="1">
             <Button ToolTip="Undo" VerticalAlignment="bottom" Click="UndoButton" Height="25" Width="25">
                 <Image Source="Resources/undo.png"/>
@@ -109,6 +108,7 @@
                     </UniformGrid>
                 </StackPanel>
             </Border>
+
         </StackPanel>
         <StackPanel Grid.Row="1" Grid.Column="3" VerticalAlignment="Top" Height="0">
         </StackPanel>
