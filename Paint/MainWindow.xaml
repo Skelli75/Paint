@@ -79,21 +79,30 @@
                 <StackPanel>
                     <Rectangle x:Name="VisualColor" Width="auto" Fill="Black" Stroke="White" Height="100" Margin="10,10,10,10"/>
                     <StackPanel Margin="10,0,10,0">
-                        <Slider ToolTip="Red" ValueChanged="ColorValueChanged" x:Name="red" Minimum="0" Margin="0,0,0,5" Maximum="255">
-                            <Slider.Background>
-                                <ImageBrush ImageSource="Resources/redGradient.png"/>
-                            </Slider.Background>
-                        </Slider>
-                        <Slider ToolTip="Green" ValueChanged="ColorValueChanged" x:Name="green" Minimum="0" Margin="0,0,0,5" Maximum="255">
-                            <Slider.Background>
-                                <ImageBrush ImageSource="Resources/greenGradient.png"/>
-                            </Slider.Background>
-                        </Slider>
-                        <Slider ToolTip="Blue" ValueChanged="ColorValueChanged" x:Name="blue" Minimum="0" Margin="0,0,0,5" Maximum="255">
-                            <Slider.Background>
-                                <ImageBrush ImageSource="Resources/blueGradient.png"/>
-                            </Slider.Background>
-                        </Slider>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox PreviewTextInput="CheckIfint" MaxLength="3" TextChanged="UpdateColorTextbox" x:Name="redTextBox" Margin="0,0,5,0" Width="25">0</TextBox>
+                            <Slider  ToolTip="Red Slider" ValueChanged="UpdateColorSlider" x:Name="redSlider" Margin="0,0,0,5" Minimum="0"  Maximum="255" Width="80">
+                                <Slider.Background>
+                                    <ImageBrush ImageSource="Resources/redGradient.png"/>
+                                </Slider.Background>
+                            </Slider>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox PreviewTextInput="CheckIfint" MaxLength="3" TextChanged="UpdateColorTextbox" x:Name="greenTextBox" Margin="0,0,5,0" Width="25">0</TextBox>
+                            <Slider ToolTip="Green Slider" ValueChanged="UpdateColorSlider" x:Name="greenSlider" Margin="0,0,0,5" Minimum="0" Maximum="255" Width="79">
+                                <Slider.Background>
+                                    <ImageBrush ImageSource="Resources/greenGradient.png"/>
+                                </Slider.Background>
+                            </Slider>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox PreviewTextInput="CheckIfint" MaxLength="3" TextChanged="UpdateColorTextbox" x:Name="blueTextBox" Margin="0,0,5,0" Width="25">0</TextBox>
+                            <Slider ToolTip="Blue Slider" ValueChanged="UpdateColorSlider" x:Name="blueSlider" Minimum="0" Margin="0,0,0,5" Maximum="255" Width="79">
+                                <Slider.Background>
+                                    <ImageBrush ImageSource="Resources/blueGradient.png"/>
+                                </Slider.Background>
+                            </Slider>
+                        </StackPanel>
                     </StackPanel>
 
                 </StackPanel>

@@ -21,7 +21,7 @@ namespace Paint
         public DrawTools _drawTools;
 
         string _currentTool;
-        System.Windows.Media.Color _color;
+        
 
 
         public Tools(InkCanvas canvas)
@@ -40,20 +40,11 @@ namespace Paint
             _drawTools = new();
             _canvas = canvas;
             _currentTool = "pen";
-            _color = new();
-
         }
 
         public void SetColor(System.Windows.Media.Color color)
         {
             _toolPresets["pen"].Color = color;
-            _color = color;
-            GetTool("pen").Color = _color;
-        }
-
-        public System.Windows.Media.Color GetColor()
-        {
-            return _color;
         }
 
         public void SetTool(string tool)

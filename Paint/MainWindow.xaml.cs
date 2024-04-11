@@ -19,6 +19,7 @@ using System;
 using System.Diagnostics;
 using System.Data;
 using System.Text.RegularExpressions;
+using ColorPicker.ColorModels.RGB;
 
 namespace Paint
 {
@@ -31,8 +32,9 @@ namespace Paint
         StateHandler _stateHandler;
 
         private bool handle = true;
-        System.Windows.Point start; 
-        System.Windows.Point end;
+        System.Windows.Point _start; 
+        System.Windows.Point _end;
+        System.Windows.Media.Color _color;
         
 
         public MainWindow()
@@ -43,8 +45,9 @@ namespace Paint
             _stateHandler = new(StandardCanvas);
 
             //anger standard drawing tool som pentool och standard färgen som Black
-            _tools.SetTool("pen"); 
-            _tools.SetColor(Colors.Black); //sätter standard färgen
+            _tools.SetTool("pen");
+            _color = Colors.Black;
+            ColorChanged(); //sätter standard färgen
 
             StandardCanvas.UseCustomCursor = true;
 
@@ -54,23 +57,6 @@ namespace Paint
 
             DrawFirstLine();
             StandardCanvas.Strokes.StrokesChanged += Strokes_StrokesChanged;
-        }
-
-        private void ColorValueChanged(object sender, RoutedEventArgs e)
-        {
-            _color = System.Windows.Media.Color.FromRgb((byte)red.Value, (byte)green.Value, (byte)blue.Value);
-            UpdateColor();
-            
-            //System.Windows.Media.Color color = System.Windows.Media.Color.FromRgb((byte)redSlider.Value, (byte)greenSlider.Value, (byte)blueSlider.Value);
-            //_tools.SetColor(color);
-
-            //SolidColorBrush brush = new(color);
-            //VisualColor.Fill = brush;
-            //VisualSize.Fill = brush;
-
-            //redTextBox.Text = redSlider.Value.ToString();
-            //greenTextBox.Text = greenSlider.Value.ToString();
-            //blueTextBox.Text = blueSlider.Value.ToString();
         }
 
 
@@ -197,13 +183,13 @@ namespace Paint
             //kollar vilket verktyg som är aktivt
             if (_tools.GetTool() == "line" || _tools.GetTool() == "rectangle" || _tools.GetTool() == "ellipse")
             {
-                start = e.GetPosition(StandardCanvas); // ger formen sin start koordinat
+                _start = e.GetPosition(StandardCanvas); // ger formen sin start koordinat
             }
             else if (_tools.GetTool() == "fill")
             {
                 System.Drawing.Color targetColor = GetColorUnderMouse(e);
 
-                System.Windows.Media.Color color = _tools.GetColor();
+                System.Windows.Media.Color color = _color;
                 System.Drawing.Color replacementColor = System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B);
 
                 if (targetColor != replacementColor)
@@ -218,10 +204,14 @@ namespace Paint
             }
             else if (_tools.GetTool() == "colorPicker")
             {
-                System.Drawing.Color color = GetColorUnderMouse(e);
+                for (int i = 0; i < 3; i++)
+                {
 
-                _color = System.Windows.Media.Color.FromArgb(color.A, color.R, color.G, color.B);
-                UpdateColor();
+                    System.Drawing.Color color = GetColorUnderMouse(e);
+
+                    _color = System.Windows.Media.Color.FromArgb(color.A, color.R, color.G, color.B);
+                    ColorChanged();
+                }
             }
         }
 
@@ -237,7 +227,7 @@ namespace Paint
         {
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-                end = e.GetPosition(StandardCanvas);
+                _end = e.GetPosition(StandardCanvas);
 
                 if (_tools.GetTool() == "rectangle" || _tools.GetTool() == "line" || _tools.GetTool() == "ellipse")
                 {
@@ -246,15 +236,15 @@ namespace Paint
 
                     if (_tools.GetTool() =="line")
                     {
-                        newStroke = _tools._drawTools.DrawLine(start, end, _tools.GetColor(), SizeSlider.Value); ; // skapar newLine
+                        newStroke = _tools._drawTools.DrawLine(_start, _end, _color, SizeSlider.Value); ; // skapar newLine
                     }
                     else if (_tools.GetTool() == "rectangle")
                     {
-                        newStroke = _tools._drawTools.DrawRectangle(start, end, _tools.GetColor(), SizeSlider.Value);
+                        newStroke = _tools._drawTools.DrawRectangle(_start, _end, _color, SizeSlider.Value);
                     }
                     else if (_tools.GetTool() == "ellipse")
                     {
-                        newStroke = _tools._drawTools.DrawEllipse(start, end, 500, _tools.GetColor(), SizeSlider.Value);
+                        newStroke = _tools._drawTools.DrawEllipse(_start, _end, 500, _color, SizeSlider.Value);
                     }
                     StrokeCollection strokeCollection = new() { newStroke };  //Lägger newLine i strokecollection
 
@@ -332,26 +322,107 @@ namespace Paint
             return _tools.RenderTargetBitmap().GetPixel((int)m.GetPosition(StandardCanvas).X, (int)m.GetPosition(StandardCanvas).Y);
         }
 
-        private void UpdateColor()
+        private void UpdateSliders()
         {
-            _tools.SetColor(_color);
-            VisualColor.Fill = new SolidColorBrush(_color);
+            if (redSlider != null && greenSlider != null && blueSlider != null)
+            {
+                redSlider.Value = _color.R;
+                greenSlider.Value = _color.G;
+                blueSlider.Value = _color.B;
+            }
         }
-        
-        private void UpdateColorTextbox(object sender, TextChangedEventArgs e)
+
+        private void UpdateTextboxes()
         {
-            if (redSlider != null && redTextBox != null && redTextBox.Text != "")
-                redSlider.Value = double.Parse(redTextBox.Text);
-            if (greenSlider != null && greenTextBox != null && greenTextBox.Text != "")
-                greenSlider.Value = double.Parse(greenTextBox.Text);
-            if (blueSlider != null && blueTextBox != null && blueTextBox.Text != "")
-                blueSlider.Value = double.Parse(blueTextBox.Text);
+            if (redTextBox != null && redTextBox.Text != "" && greenTextBox != null && greenTextBox.Text != "" && blueTextBox != null && blueTextBox.Text != "")
+            {
+                redTextBox.Text = _color.R.ToString();
+                greenTextBox.Text = _color.G.ToString();
+                blueTextBox.Text = _color.B.ToString();
+            }
         }
+
+        private void UpdateVisualizers()
+        {
+            if (VisualSize != null && VisualColor != null)
+            {
+                SolidColorBrush brush = new(_color);
+                VisualColor.Fill = brush;
+                VisualSize.Fill = brush;
+            }
+        }
+
 
         private void CheckIfint(object sender, TextCompositionEventArgs e)
         {
             Regex regex = new Regex("[^0-9]+");
             e.Handled = regex.IsMatch(e.Text);
+        }
+
+        private void ColorChanged()
+        {
+            handle = false;
+            UpdateSliders();
+            UpdateTextboxes();
+            UpdateVisualizers();
+            
+
+            if (_tools != null)
+                _tools.SetColor(_color);
+            handle = true;
+        }
+
+        private void UpdateColorSlider(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (handle)
+            {
+                byte red = 0;
+                byte green = 0;
+                byte blue = 0;
+
+                if (redSlider != null && greenSlider != null && redSlider != null)
+                {
+                    red = (byte)redSlider.Value;
+                    green = (byte)greenSlider.Value;
+                    blue = (byte)blueSlider.Value;
+                }
+
+                _color = System.Windows.Media.Color.FromRgb(red, green, blue);
+
+                ColorChanged();
+            }
+        }
+
+        private void UpdateColorTextbox(object sender, TextChangedEventArgs e)
+        {
+            if (handle)
+            {
+                byte red = 0;
+                byte green = 0;
+                byte blue = 0;
+
+                if (redTextBox != null && redTextBox.Text != "" && greenTextBox != null && greenTextBox.Text != "" && blueTextBox != null && blueTextBox.Text != "")
+                {
+                    if (int.Parse(redTextBox.Text) > 255)
+                        red = 255;
+                    else
+                        red = byte.Parse(redTextBox.Text);
+
+                    if (int.Parse(greenTextBox.Text) > 255)
+                        green = 255;
+                    else
+                        green = byte.Parse(greenTextBox.Text);
+
+                    if (int.Parse(blueTextBox.Text) > 255)
+                        blue = 255;
+                    else
+                        blue = byte.Parse(blueTextBox.Text);
+                }
+
+                _color = System.Windows.Media.Color.FromRgb(red, green, blue);
+
+                ColorChanged();
+            }
         }
     }
 }
