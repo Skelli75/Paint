@@ -10,7 +10,7 @@
         StateChanged="UpdateWindowMax"
         KeyDown="PaintKeyDown"
         Title="MainWindow" Height="490" Width="848">
-    <Grid x:Name="MainGrid" Background="#7F7F7F" Margin="0,0,0,0">
+    <Grid x:Name="MainGrid" Background="#636363" Margin="0,0,0,0">
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
             <ColumnDefinition Width="130*"/>
@@ -25,7 +25,8 @@
         <Canvas Grid.Column="2" Grid.Row="1">
             <InkCanvas PreviewMouseLeftButtonDown="StandardCanvas_MouseDown" PreviewMouseMove="StandardCanvas_MouseMove" PreviewMouseLeftButtonUp="StandardCanvas_MouseUp" Name="StandardCanvas" VerticalAlignment="Top" HorizontalAlignment="Left" Background="White" Height="338" Width="576" Canvas.Top="-1" />
         </Canvas>
-        <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal" Margin="0,-1,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Height="50" Width="108" Grid.ColumnSpan="2">
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Stretch" Height="30"  Background="DarkGray" Grid.ColumnSpan="4">
             <Button ToolTip="Save" x:Name="SaveButton" HorizontalAlignment="Left" VerticalAlignment="Top" Click="SaveButtonClick" Width="30" Height="30">
                 <Image Source="Resources/save.png"/>
             </Button>
@@ -33,7 +34,8 @@
                 <Image Source="Resources/openFile.png"/>
             </Button>
         </StackPanel>
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="124,-6,415,2" Grid.ColumnSpan="2" Grid.Column="1">
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Grid.ColumnSpan="2" Grid.Column="2">
             <Button ToolTip="Undo" VerticalAlignment="bottom" Click="UndoButton" Height="25" Width="25">
                 <Image Source="Resources/undo.png"/>
             </Button>
@@ -44,36 +46,58 @@
                 <Image Source="Resources/clear.png"/>
             </Button>
         </StackPanel>
-        <StackPanel Grid.Column="3" Margin="0,62,0,0" Grid.RowSpan="2">
+
+        <StackPanel Grid.Column="3" Margin="0,62,0,0" Grid.RowSpan="2" Background="BlanchedAlmond" VerticalAlignment="Center">
+
+            <StackPanel Background="red" Height="282">
+                <Button ToolTip="Brush" HorizontalAlignment="right" VerticalAlignment="Top" Click="PencilToolButton" Height="45" Width="45">
+                    <Image Source="Resources/brushTool.png"/>
+                </Button>
+                <Button ToolTip="Eraser" HorizontalAlignment="right"  VerticalAlignment="Top" Click="EraserToolButton" Height="45" Width="45">
+                    <Image Source="Resources/eraserTool.png"/>
+                </Button>
+                <Button ToolTip="Fill" HorizontalAlignment="Right" VerticalAlignment="Top" Click="FillToolButton" Height="45" Width="45">
+                    <Image Source="Resources/fillTool.png"/>
+                </Button>
+                <Button ToolTip="Line" HorizontalAlignment="Right" VerticalAlignment="Top" Click="LineToolButton" Height="45" Width="45">
+                    <Image Source="Resources/lineTool.png"/>
+                </Button>
+                <Button ToolTip="Ellipse" HorizontalAlignment="Right" VerticalAlignment="Top" Click="EllipseToolButton" Height="45" Width="45">
+                    <Image Source="Resources/circleTool.png"/>
+                </Button>
+                <Button ToolTip="Rectangle" HorizontalAlignment="Right" VerticalAlignment="Top" Click="RectangleToolButton" Height="45" Width="45">
+                    <Image Source="Resources/rectangleTool.png"/>
+                </Button>
+            </StackPanel>
+
+            <Ellipse x:Name="VisualSize" Width="5" Fill="Black"  Height="5" VerticalAlignment="Top" HorizontalAlignment="Center"/>
             <Label Content="Size Slider" VerticalContentAlignment="Bottom"/>
             <Slider x:Name="SizeSlider" Width="108" ValueChanged="SizeSliderValueChanged"/>
-            <Button ToolTip="Eraser" HorizontalAlignment="right"  VerticalAlignment="Top" Click="EraserToolButton" Height="45" Width="45">
-                <Image Source="Resources/eraserTool.png"/>
-            </Button>
-            <Button ToolTip="Brush" HorizontalAlignment="right" VerticalAlignment="Top" Click="PencilToolButton" Height="45" Width="45">
-                <Image Source="Resources/brushTool.png"/>
-            </Button>
-            <Button ToolTip="Fill" HorizontalAlignment="Right" VerticalAlignment="Top" Click="FillToolButton" Height="45" Width="45">
-                <Image Source="Resources/fillTool.png"/>
-            </Button>
-            <Button ToolTip="Line" HorizontalAlignment="Right" VerticalAlignment="Top" Click="LineToolButton" Height="45" Width="45">
-                <Image Source="Resources/lineTool.png"/>
-            </Button>
-            <Button ToolTip="Ellipse" HorizontalAlignment="Right" VerticalAlignment="Top" Click="EllipseToolButton" Height="45" Width="45">
-                <Image Source="Resources/circleTool.png"/>
-            </Button>
-            <Button ToolTip="Rectangle" HorizontalAlignment="Right" VerticalAlignment="Top" Click="RectangleToolButton" Height="45" Width="45">
-                <Image Source="Resources/rectangleTool.png"/>
-            </Button>
         </StackPanel>
-        <StackPanel Grid.Row="1" Grid.Column="1">
-            <Rectangle x:Name="VisualColor" Width="100" Fill="Black" Height="100"/>
-            <Slider ToolTip="Red" ValueChanged="ColorValueChanged" x:Name="red" Minimum="0" Maximum="255"></Slider>
-            <Slider ToolTip="Green" ValueChanged="ColorValueChanged" x:Name="green" Minimum="0" Maximum="255"></Slider>
-            <Slider ToolTip="Blue" ValueChanged="ColorValueChanged" x:Name="blue" Minimum="0" Maximum="255"></Slider>
+        
+        <StackPanel Grid.Row="1" Grid.Column="1" VerticalAlignment="center">
+            <Rectangle x:Name="VisualColor" Width="auto" Fill="Black" Stroke="White" Height="100" Margin="20,10,20,10"/>
+            
+            <StackPanel Margin="10,0,10,0">
+                <Slider ToolTip="Red" ValueChanged="ColorValueChanged" x:Name="red" Minimum="0" Margin="0,0,0,5" Maximum="255">
+                    <Slider.Background>
+                        <ImageBrush ImageSource="Resources/redGradient.png"/>
+                    </Slider.Background>
+                </Slider>
+                <Slider ToolTip="Green" ValueChanged="ColorValueChanged" x:Name="green" Minimum="0" Margin="0,0,0,5" Maximum="255">
+                    <Slider.Background>
+                        <ImageBrush ImageSource="Resources/greenGradient.png"/>
+                    </Slider.Background>
+                </Slider>
+                <Slider ToolTip="Blue" ValueChanged="ColorValueChanged" x:Name="blue" Minimum="0" Margin="0,0,0,5" Maximum="255">
+                    <Slider.Background>
+                        <ImageBrush ImageSource="Resources/blueGradient.png"/>
+                    </Slider.Background>
+                </Slider>
+            </StackPanel>
+
         </StackPanel>
         <StackPanel Grid.Row="0" Grid.Column="3" VerticalAlignment="Bottom">
-            <Ellipse x:Name="VisualSize" Width="5" Fill="Black" Height="5" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>
         </StackPanel>
     </Grid>
 </Window>
