@@ -1,11 +1,4 @@
-﻿using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Windows.Controls;
 using System.Windows.Ink;
 
@@ -35,7 +28,7 @@ namespace Paint
 
         public void RemoveVisualLine() 
         {
-            if (_added.Count > 0 && _visualStrokes.Count > 0)
+            if (_added.Count > 0 && _visualStrokes.Count > 1)
             {
                 if (_added[_added.Count - 1] != _visualStrokes[_visualStrokes.Count - 1]) // är det senaste sträcket ett permanent sträck?
                 {

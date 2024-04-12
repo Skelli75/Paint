@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.SymbolStore;
 using System.Windows;
 using System.Windows.Ink;
 using System.Windows.Input;
@@ -14,7 +13,7 @@ namespace Paint
         {
             
         }
-        public Stroke DrawLine(Point start, Point end, Color color, double sizeValue) // metoden ritar både ut finalstrokes och visualstrokes
+        public StrokeCollection DrawLine(Point start, Point end, Color color, double sizeValue) //Draws a line between start and end 
         {
             StylusPointCollection pts = new();
             pts.Add(new StylusPoint(start.X, start.Y));
@@ -27,12 +26,12 @@ namespace Paint
                 Width = sizeValue,
             };
 
-            Stroke stroke = new(pts, dA);
+            StrokeCollection newStroke = new() { new Stroke(pts, dA) };
 
-            return stroke;
+            return newStroke;
         }
 
-        public Stroke DrawRectangle(Point start, Point end, Color color, double sizeValue)  // när man har datan
+        public StrokeCollection DrawRectangle(Point start, Point end, Color color, double sizeValue)  //Calculates where the points of the rectangle should be with the help of start and end and then draws between them 
         {
             StylusPointCollection pts = new();
 
@@ -50,11 +49,11 @@ namespace Paint
                 StylusTip = StylusTip.Rectangle
             };
 
-            Stroke stroke = new(pts, dA);
+            StrokeCollection newStroke = new() { new Stroke(pts, dA) };
 
-            return stroke;
+            return newStroke;
         }
-        public Stroke DrawEllipse(Point start, Point end, int pointsCount, Color color, double sizeValue)
+        public StrokeCollection DrawEllipse(Point start, Point end, int pointsCount, Color color, double sizeValue) //Places points around a circle between start and end then generates a stroke from that
         {
             // Calculate center, width, and height of the bounding box
             double centerX = (start.X + end.X) / 2;
@@ -82,12 +81,12 @@ namespace Paint
                 StylusTip = StylusTip.Rectangle
             };
 
-            Stroke stroke = new(pts, dA);
+            StrokeCollection newStroke = new() { new Stroke(pts, dA) };
 
-            return stroke;
+            return newStroke;
         }
 
-        public StylusPointCollection FloodFill(System.Drawing.Bitmap bmp, Point pt, System.Drawing.Color targetColor, System.Drawing.Color replacementColor) //Fyller en friformat ritat figur BUG: spöklinjer förekommer när man fyller utanför en form
+        public StrokeCollection FloodFill(System.Drawing.Bitmap bmp, Point pt, System.Drawing.Color targetColor, System.Drawing.Color replacementColor, double sizeValue) //Fills a freeform drawn shape with color. Currently has a bug where a line appears whenever a jump in the scan occurs.
         {
             StylusPointCollection pts = new();
 
@@ -97,7 +96,7 @@ namespace Paint
                 return null;
             }
 
-            Stack<System.Windows.Point> pixels = new Stack<Point>();
+            Stack<Point> pixels = new Stack<Point>();
 
             pixels.Push(pt);
             while (pixels.Count != 0)
@@ -120,7 +119,7 @@ namespace Paint
 
                     if (temp.X > 1 && !spanLeft && bmp.GetPixel((int)temp.X - 1, y1) == targetColor)
                     {
-                        pixels.Push(new System.Windows.Point(temp.X - 1, y1));
+                        pixels.Push(new Point(temp.X - 1, y1));
                         spanLeft = true;
                     }
                     else if (spanLeft && temp.X - 1 == 0 && bmp.GetPixel((int)temp.X - 1, y1) != targetColor)
@@ -129,7 +128,7 @@ namespace Paint
                     }
                     else if (!spanRight && temp.X < bmp.Width - 1 && bmp.GetPixel((int)temp.X + 1, y1) == targetColor)
                     {
-                        pixels.Push(new System.Windows.Point(temp.X + 1, y1));
+                        pixels.Push(new Point(temp.X + 1, y1));
                         spanRight = true;
                     }
                     else if (spanRight && temp.X < bmp.Width - 1 && bmp.GetPixel((int)temp.X + 1, y1) != targetColor)
@@ -140,7 +139,18 @@ namespace Paint
                 }
             }
 
-            return pts;
+            DrawingAttributes dA = new() 
+            { 
+                Color = Color.FromRgb(replacementColor.R, replacementColor.G, replacementColor.B), 
+                Height = sizeValue, 
+                Width = sizeValue, 
+                StylusTip = StylusTip.Rectangle 
+            };
+
+            StrokeCollection newStroke = new StrokeCollection() { new Stroke(pts, dA) };
+
+
+            return newStroke;
         }
 
     }

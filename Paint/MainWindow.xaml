@@ -7,7 +7,7 @@
         xmlns:local="clr-namespace:Paint"
         mc:Ignorable="d"
         KeyDown="PaintKeyDown"
-        Title="MainWindow" Height="600" Width="1000">
+        Title="MainWindow" MinHeight="600" MinWidth="1100" Height="600" Width="1100">
     <Grid x:Name="MainGrid" Background="#636363" Margin="0,0,0,0">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -15,12 +15,12 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition/>
+            <RowDefinition Height="*"/>
             <RowDefinition Height="5*"/>
-            <RowDefinition/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <UniformGrid Background="Red" Grid.Row="1" Grid.Column="1">
+        <UniformGrid  Grid.Row="1" Grid.Column="1">
             <InkCanvas PreviewMouseLeftButtonDown="StandardCanvas_MouseDown" PreviewMouseMove="StandardCanvas_MouseMove" PreviewMouseLeftButtonUp="StandardCanvas_MouseUp" x:Name="StandardCanvas" Background="White" Height="Auto" Width="Auto"/>
         </UniformGrid>
 
@@ -49,65 +49,63 @@
         <StackPanel Grid.Column="3" Grid.Row="1" Background="Transparent" VerticalAlignment="Center" Orientation="Vertical">
             <Border  VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,5,5,5" CornerRadius="5" Padding="5" Background="Gray">
                 <StackPanel Background="Transparent">
-                    <Button x:Name="PencilTool" ToolTip="Brush" HorizontalAlignment="right" VerticalAlignment="Top" Click="PencilToolButton" Height="45" Width="45">
+                    <Button Background="LightGray" x:Name="PencilTool" ToolTip="Brush" HorizontalAlignment="right" VerticalAlignment="Top" Click="PencilToolButton" Height="45" Width="45">
                         <Image Source="Resources/brushTool.png"/>
                     </Button>
-                    <Button x:Name="EraserTool" ToolTip="Eraser" HorizontalAlignment="right"  VerticalAlignment="Top" Click="EraserToolButton" Height="45" Width="45">
+                    <Button Background="LightGray" x:Name="EraserTool" ToolTip="Eraser" HorizontalAlignment="right"  VerticalAlignment="Top" Click="EraserToolButton" Height="45" Width="45">
                         <Image Source="Resources/eraserTool.png"/>
                     </Button>
-                    <Button x:Name="ColorPickerTool" ToolTip="Color picker" HorizontalAlignment="right"  VerticalAlignment="Top" Click="ColorPickerButton" Height="45" Width="45">
+                    <Button Background="LightGray" x:Name="ColorPickerTool" ToolTip="Color picker" HorizontalAlignment="right"  VerticalAlignment="Top" Click="ColorPickerButton" Height="45" Width="45">
                         <Image Source="Resources/colorPicker.png"/>
                     </Button>
-                    <Button x:Name="FillTool" ToolTip="Fill" HorizontalAlignment="Right" VerticalAlignment="Top" Click="FillToolButton" Height="45" Width="45">
+                    <Button Background="LightGray" x:Name="FillTool" ToolTip="Fill" HorizontalAlignment="Right" VerticalAlignment="Top" Click="FillToolButton" Height="45" Width="45">
                         <Image Source="Resources/fillTool.png"/>
                     </Button>
-                    <Button x:Name="LineTool" ToolTip="Line" HorizontalAlignment="Right" VerticalAlignment="Top" Click="LineToolButton" Height="45" Width="45">
+                    <Button Background="LightGray" x:Name="LineTool" ToolTip="Line" HorizontalAlignment="Right" VerticalAlignment="Top" Click="LineToolButton" Height="45" Width="45">
                         <Image Source="Resources/lineTool.png"/>
                     </Button>
-                    <Button x:Name="EllipseTool" ToolTip="Ellipse" HorizontalAlignment="Right" VerticalAlignment="Top" Click="EllipseToolButton" Height="45" Width="45">
+                    <Button Background="LightGray" x:Name="EllipseTool" ToolTip="Ellipse" HorizontalAlignment="Right" VerticalAlignment="Top" Click="EllipseToolButton" Height="45" Width="45">
                         <Image Source="Resources/circleTool.png"/>
                     </Button>
-                    <Button x:Name="RectangleTool" ToolTip="Rectangle" HorizontalAlignment="Right" VerticalAlignment="Top" Click="RectangleToolButton" Height="45" Width="45">
+                    <Button Background="LightGray" x:Name="RectangleTool" ToolTip="Rectangle" HorizontalAlignment="Right" VerticalAlignment="Top" Click="RectangleToolButton" Height="45" Width="45">
                         <Image Source="Resources/rectangleTool.png"/>
                     </Button>
                 </StackPanel>
             </Border>
         </StackPanel>
 
-        <StackPanel VerticalAlignment="Center" Grid.Row="1" Grid.Column="0">
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Right" Grid.Row="1" Grid.Column="0" Margin="10,0,0,0" Width="140">
             <Border VerticalAlignment="Center" Margin="5,5,5,5" CornerRadius="5" Background="Gray" Padding="2">
                 <StackPanel>
-                    <Rectangle x:Name="VisualColor" Width="auto" Fill="Black" Stroke="White" Height="100" Margin="10,10,10,10"/>
+                    <Rectangle x:Name="VisualColor" Width="auto" Fill="Black" Stroke="White" Height="110" Margin="10,10,10,10"/>
                     <StackPanel Margin="10,0,10,0">
-                        <StackPanel Orientation="Horizontal">
+                        <DockPanel>
                             <TextBox PreviewTextInput="CheckIfint" MaxLength="3" TextChanged="UpdateColorTextbox" x:Name="redTextBox" Margin="0,0,5,0" Width="25">0</TextBox>
-                            <Slider  ToolTip="Red Slider" ValueChanged="UpdateColorSlider" x:Name="redSlider" Margin="0,0,0,5" Minimum="0"  Maximum="255" Width="80">
+                            <Slider ToolTip="Red Slider" ValueChanged="UpdateColorSlider" x:Name="redSlider" Margin="0,0,0,5" Minimum="0"  Maximum="255" >
                                 <Slider.Background>
                                     <ImageBrush ImageSource="Resources/redGradient.png"/>
                                 </Slider.Background>
                             </Slider>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
+                        </DockPanel>
+                        <DockPanel>
                             <TextBox PreviewTextInput="CheckIfint" MaxLength="3" TextChanged="UpdateColorTextbox" x:Name="greenTextBox" Margin="0,0,5,0" Width="25">0</TextBox>
-                            <Slider ToolTip="Green Slider" ValueChanged="UpdateColorSlider" x:Name="greenSlider" Margin="0,0,0,5" Minimum="0" Maximum="255" Width="79">
+                            <Slider ToolTip="Green Slider" ValueChanged="UpdateColorSlider" x:Name="greenSlider" Margin="0,0,0,5" Minimum="0" Maximum="255" >
                                 <Slider.Background>
                                     <ImageBrush ImageSource="Resources/greenGradient.png"/>
                                 </Slider.Background>
                             </Slider>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
+                        </DockPanel>
+                        <DockPanel>
                             <TextBox PreviewTextInput="CheckIfint" MaxLength="3" TextChanged="UpdateColorTextbox" x:Name="blueTextBox" Margin="0,0,5,0" Width="25">0</TextBox>
-                            <Slider ToolTip="Blue Slider" ValueChanged="UpdateColorSlider" x:Name="blueSlider" Minimum="0" Margin="0,0,0,5" Maximum="255" Width="79">
+                            <Slider ToolTip="Blue Slider" ValueChanged="UpdateColorSlider" x:Name="blueSlider" Minimum="0" Margin="0,0,0,5" Maximum="255">
                                 <Slider.Background>
                                     <ImageBrush ImageSource="Resources/blueGradient.png"/>
                                 </Slider.Background>
                             </Slider>
-                        </StackPanel>
+                        </DockPanel>
                     </StackPanel>
-
                 </StackPanel>
             </Border>
-
             <Border Margin="5,5,5,5" CornerRadius="5" Background="Gray" Padding="5">
                 <StackPanel Background="Gray" >
                     <Label Content="Size Slider" VerticalContentAlignment="Bottom"/>
@@ -117,9 +115,6 @@
                     </UniformGrid>
                 </StackPanel>
             </Border>
-
-        </StackPanel>
-        <StackPanel Grid.Row="1" Grid.Column="3" VerticalAlignment="Top" Height="0">
         </StackPanel>
     </Grid>
 </Window>

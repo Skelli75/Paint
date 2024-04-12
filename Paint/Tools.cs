@@ -1,14 +1,11 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.SymbolStore;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Ink;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -16,11 +13,11 @@ namespace Paint
 {
     internal class Tools
     {
-        Dictionary<string, DrawingAttributes> _toolPresets;
+        Dictionary<string, DrawingAttributes> _toolPresets; //A dictionary is used to store the different tools' DrawingAttributes
         InkCanvas _canvas;
         public DrawTools _drawTools;
 
-        string _currentTool;
+        string _currentTool; //has the current tool for reference
         
 
 
@@ -31,9 +28,9 @@ namespace Paint
                 { "pen", new DrawingAttributes() { Color = Colors.Black } },
                 { "eraser", new DrawingAttributes() { Color = Colors.White} },
                 { "colorPicker", new DrawingAttributes(){ Color = Colors.Transparent } },
-                { "line", new DrawingAttributes() { Color = Colors.Transparent, Width = 1 } },
-                { "rectangle", new DrawingAttributes() { Color = Colors.Transparent, Width = 2 } },
-                { "ellipse", new DrawingAttributes() { Color = Colors.Transparent, Width = 3, StylusTip = StylusTip.Ellipse } },
+                { "line", new DrawingAttributes() { Color = Colors.Transparent } },
+                { "rectangle", new DrawingAttributes() { Color = Colors.Transparent } },
+                { "ellipse", new DrawingAttributes() { Color = Colors.Transparent, StylusTip = StylusTip.Ellipse } },
                 { "fill", new DrawingAttributes() { Color = Colors.Transparent } }
             };
 
@@ -42,12 +39,12 @@ namespace Paint
             _currentTool = "pen";
         }
 
-        public void SetColor(System.Windows.Media.Color color)
+        public void SetColor(System.Windows.Media.Color color) //Give new color to pen
         {
-            _toolPresets["pen"].Color = color;
+            _toolPresets["pen"].Color = color; //It is only the pen that needs its DrawingAttribute.Color changed as the other tools don't rely on this for color change
         }
 
-        public void SetTool(string tool)
+        public void SetTool(string tool) 
         {
             _canvas.DefaultDrawingAttributes = _toolPresets[tool];
             _currentTool = tool;
@@ -58,9 +55,9 @@ namespace Paint
             return _currentTool;
         }
 
-        public void SaveCanvas() //Sparar ner canvas bilden där man vill
+        public void SaveCanvas() //Saves the canvas as a JPeg
         {
-            //Startar en saveFileDialog för att låta användaren själv välja vart bilden ska sparas
+            //Starts a saveFileDialog that lets the user choose where to save the image
             SaveFileDialog save = new()
             {
                 Filter = "JPeg Image|*.jpg",
@@ -69,7 +66,7 @@ namespace Paint
             };
             if (save.ShowDialog() == true)
             {
-                //omvandlar inkcanvas:en till en bitmap och sparar sedan ner den som en jpg
+                //Renders the canvas as a bitmap and saves it as a JPeg
                 Bitmap bitmap = RenderTargetBitmap();
                 bitmap.Save(save.FileName);
             }
@@ -77,21 +74,21 @@ namespace Paint
 
         public bool LoadImageFromFile()
         {
-            //Startar OpenFileDialog för att användaren ska kunna välja en jpg 
+            //Starts a openFileDialog that lets the user open a JPeg
             OpenFileDialog open = new OpenFileDialog();
             open.Filter = "JPeg Image|*.jpg";
             open.ShowDialog();
 
             try
             {
-                //sparar jpg:en som en image 
+                //Converts the choosen JPeg as an Image
                 Stream fileStream = open.OpenFile();
                 System.Drawing.Image fileContent = System.Drawing.Image.FromStream(fileStream);
 
-                //Omvandlar Image filecontent till en bitmap
+                //Converts the Image to a bitmap
                 Bitmap bitmap = new(fileContent);
 
-                //Laddar upp bitmapen på canvas:en
+                //Loads the bitmap to the canvas as a background  
                 LoadBitmaptoCanvas(bitmap);
                 return true;
             }
@@ -119,14 +116,14 @@ namespace Paint
             return new Bitmap(ms);
         }
 
-        public BitmapImage BitmapToBitmapImage(Bitmap bitmap) //Omvandlar en bitmap till en bitmapimage
+        public BitmapImage BitmapToBitmapImage(Bitmap bitmap) //Converts a bitmap to a bitmapImage 
         {
-            using (var memory = new MemoryStream())
+            using (MemoryStream memory = new MemoryStream())
             {
                 bitmap.Save(memory, ImageFormat.Png);
                 memory.Position = 0;
 
-                var bitmapImage = new BitmapImage();
+                BitmapImage bitmapImage = new BitmapImage();
                 bitmapImage.BeginInit();
                 bitmapImage.StreamSource = memory;
                 bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
@@ -136,7 +133,7 @@ namespace Paint
                 return bitmapImage;
             }
         }
-        public void LoadBitmaptoCanvas(Bitmap bitmap) //Laddar in en bitmap på canvas:en
+        public void LoadBitmaptoCanvas(Bitmap bitmap) //Loads a bitmap to the canvas using an ImageBrush
         {
             ImageBrush ib = new();
             ib.ImageSource = BitmapToBitmapImage(bitmap);
